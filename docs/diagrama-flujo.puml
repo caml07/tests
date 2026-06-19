@@ -1,0 +1,50 @@
+@startuml
+title Dietas — Flujo de Autenticacion (actual)
+
+actor "Enfermero/a" as Nurse
+participant "App (Expo)" as App
+participant "AsyncStorage" as Storage
+participant "Mock API (json-server)" as MockAPI
+
+== Inicio de App ==
+App -> Storage: hydrate() → getItem('@dietas:auth')
+Storage -> App: null o { token, user }
+
+alt Sesion guardada (Recordarme)
+  App -> App: Restaura user + token en Zustand
+  App -> Nurse: Splash fade-out → Pantalla principal (app)/
+else Sin sesion
+  App -> Nurse: Splash fade-out → LoginScreen
+end
+
+== Login ==
+Nurse -> App: Ingresa usuario + password
+Nurse -> App: (opcional) Marca "Recordarme"
+Nurse -> App: Presiona "Ingresar"
+
+App -> MockAPI: GET /nurses (trae todas)
+MockAPI -> App: [nurses]
+
+App -> App: .find() local por usuario + password
+
+alt Credenciales incorrectas
+  App -> Nurse: Muestra error "Usuario o contraseña incorrectos"
+else Credenciales correctas
+  App -> App: Genera token mock
+
+  alt Recordarme = true
+    App -> Storage: setItem('@dietas:auth', JSON.stringify({token, user}))
+  else Recordarme = false
+    App -> App: No persiste, solo en RAM
+  end
+
+  App -> Nurse: Redirect a (app)/
+end
+
+== Logout ==
+Nurse -> App: Toca "Cerrar sesion"
+App -> Storage: removeItem('@dietas:auth')
+App -> App: Limpia Zustand (user=null, token=null)
+App -> Nurse: Redirect a /login
+
+@enduml
