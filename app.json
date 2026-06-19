@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Dietas",
+    "slug": "dietas",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/hospital_vivian_pellas.png",
+    "scheme": "dietas",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0284c7",
+        "foregroundImage": "./assets/images/hospital_vivian_pellas.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.hvp.dietas"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/hospital_vivian_pellas.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/hospital_vivian_pellas.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0284c7"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
