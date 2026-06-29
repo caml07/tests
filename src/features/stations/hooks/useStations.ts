@@ -1,9 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import type { Station } from '@/src/shared/types'
 import { api } from '@/src/shared/services/api'
+import { getAllRows, getDbSync } from '@/src/shared/services/database'
 
-function fetchStations(): Promise<Station[]> {
-  return api.getEstaciones()
+async function fetchStations(): Promise<Station[]> {
+  try {
+    return await api.getEstaciones()
+  } catch {
+    const db = getDbSync()
+    if (!db) return []
+    return getAllRows<Station>(db, 'stations')
+  }
 }
 
 export function useStations() {

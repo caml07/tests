@@ -12,6 +12,7 @@ import { EmptyState, ErrorState } from '@/src/shared/molecules'
 import { StationCard } from '@/src/features/stations/components/StationCard'
 import { Screen } from '@/src/shared/organisms/Screen'
 import { Spacing, Typography, color, space } from '@/src/shared/utils/tokens'
+import { useResponsive } from '@/src/shared/hooks/useResponsive'
 
 export default function EstacionesScreen() {
   const colorScheme = useColorScheme()
@@ -20,6 +21,8 @@ export default function EstacionesScreen() {
   const { stations, isLoading, error, refetch } = useStations()
   const { selectedStationId, setSelectedStation } = useStationStore()
   const insets = useSafeAreaInsets()
+  const { isDesktop } = useResponsive()
+  const cardWidth = isDesktop ? '30%' : '47%'
 
   return (
     <Screen edges={['top']}>
@@ -68,7 +71,7 @@ export default function EstacionesScreen() {
             message="No hay estaciones disponibles."
           />
         ) : (
-          <View style={styles.grid}>
+          <View style={[styles.grid, isDesktop && { gap: Spacing.xl }]}>
             {stations.map((station) => (
               <StationCard
                 key={station.id}
@@ -79,6 +82,7 @@ export default function EstacionesScreen() {
                   setSelectedStation(station.id)
                   router.push({ pathname: '/paciente/[stationId]', params: { stationId: station.id } })
                 }}
+                wrapperStyle={{ width: cardWidth }}
               />
             ))}
           </View>

@@ -1,4 +1,5 @@
 import type { SQLiteDatabase, SQLiteBindValue } from 'expo-sqlite'
+import type { QueryClient } from '@tanstack/react-query'
 import { api } from './api'
 import { upsertRows, getAllRows, deleteWhere, serializeArray } from './database'
 import type { Station, Patient, Dieta, Comida, CartItem } from '@/src/shared/types'
@@ -39,7 +40,7 @@ function bind(v: unknown): SQLiteBindValue {
   return v as SQLiteBindValue
 }
 
-export async function syncAll(db: SQLiteDatabase): Promise<boolean> {
+export async function syncAll(db: SQLiteDatabase, queryClient?: QueryClient): Promise<boolean> {
   try {
     const [stations, patients, dietas, comidas] = await Promise.all([
       api.getEstaciones(),
@@ -54,6 +55,23 @@ export async function syncAll(db: SQLiteDatabase): Promise<boolean> {
       upsertRows(db, 'dietas', dietas.map((d) => ({ ...d, tiempos: serializeArray(d.tiempos) }))),
       upsertRows(db, 'comidas', comidas.map((c) => ({ ...c, subcomidas: serializeArray(c.subcomidas) }))),
     ])
+
+    // Poblar el query cache para que funcione offline-first
+    if (queryClient) {
+      queryClient.setQueryData(['stations'], stations)
+      queryClient.setQueryData(['dietas'], dietas)
+      queryClient.setQueryData(['comidas'], comidas)
+      // Los pacientes se consultan por estación; seteamos el prefijo
+      const patientsByStation = new Map<string, Patient[]>()
+      for (const p of patients) {
+        const arr = patientsByStation.get(p.stationId)
+        if (arr) arr.push(p)
+        else patientsByStation.set(p.stationId, [p])
+      }
+      for (const [stationId, pts] of patientsByStation) {
+        queryClient.setQueryData(['pacientes', stationId], pts)
+      }
+    }
 
     return true
   } catch {

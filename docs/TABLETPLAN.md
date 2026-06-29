@@ -1,6 +1,57 @@
-## **Plan Detallado: Implementación de Vistas para iPad (Revisión Final)**
+## **Plan Detallado: Implementación de Vistas para iPad**
 
-Este plan se enfoca en adaptar la aplicación para una experiencia óptima y estable en iPad y Tablets Android, utilizando una combinación de Sidebar para navegación principal, SplitView (Master-Detail) para vistas complejas, y diseño adaptativo. Ahora, **con un enfoque 100% estable, cross-platform y basado en las mejores prácticas de Flexbox y `expo-router`**.
+Este plan se enfoca en adaptar la aplicación para una experiencia óptima y estable en iPad y Tablets Android, utilizando una combinación de Sidebar con Navigation Rail para navegación principal, y diseño adaptativo en componentes. **Con un enfoque 100% estable, cross-platform y basado en las mejores prácticas de Flexbox y `expo-router`**.
+
+## Decisiones de Arquitectura (ADRs)
+
+Estas decisiones se tomaron durante la implementación y son vinculantes para fases futuras:
+
+| # | Decisión | Razón |
+|---|----------|-------|
+| ADR-01 | `useResponsive` en `src/shared/hooks/` (no en features/) | Evita dependencia cruzada entre features (auth, stations, pacientes todos lo necesitan). Está en shared porque es device/infra, no lógica de negocio |
+| ADR-02 | `BREAKPOINTS` en `src/shared/utils/` | Misma razón que ADR-01. Además `tokens.ts` (shared) ya lo importa |
+| ADR-03 | `isTablet = width >= 744 \|\| deviceType === TABLET` | `expo-device` retorna `null` en emuladores Android y tablets chinas. El ancho es la fuente de verdad primaria |
+| ADR-04 | `<Tabs>` se mantiene con `tabBar={isTablet ? () => null : ...}` en vez de `<Slot />` | `<Tabs>` mantiene las pantallas montadas en memoria. `<Slot />` las desmonta al cambiar de pestaña, perdiendo scroll y estado |
+| ADR-05 | Sidebar con **ancho fijo** (260px / 80px), nunca `flex: 1` | `flex: 1` hace que el sidebar compita con el contenido por el espacio disponible, resultando en layouts impredecibles |
+| ADR-06 | `<BlurWrapper>` de shared/atoms (no `<BlurView>` directo) | El proyecto ya abstrae BlurView para dar fallback semi-transparente en Android donde BlurView no funciona igual |
+
+## Gotchas Técnicos (aprendidos en implementación)
+
+| Gotcha | Contexto | Solución |
+|--------|----------|----------|
+| `@/*` resuelve a `./*` no a `./src/*` | TypeScript falla si importas `@/features/hooks/...` en vez de `@/src/features/hooks/...` | Siempre usar `@/src/...` para archivos dentro de `src/` |
+| `tabBarStyle` no existe como prop en `<Tabs>` de Expo Router (TS error) | Intentar pasar `tabBarStyle` como prop directo da error de tipos | Pasarlo dentro de `screenOptions` o mejor: condicionar el `tabBar` prop directamente |
+| `ScreenOrientation.addOrientationChangeListener` cambió en SDK 56 | El método `removeOrientationChangeListeners(subscription)` ya no existe | Usar `subscription.remove()` (el objeto retornado por `addOrientationChangeListener` tiene método `.remove()`) |
+| `usePathname()` en expo-router no retorna `/` para tabs | Comparar `pathname === '/'` para detectar ruta activa nunca funciona | Usar `pathname.startsWith('/(app)/(tabs)')` o comparar con la ruta exacta del tab |
+| `BlurView` se comporta distinto en Android vs iOS | En Android el blur puede ser más lento o no funcionar con ciertos tint | Usar `<BlurWrapper>` de shared/atoms que da fallback automático |
+
+## Feature-Sliced Design (FSD) — Reglas de este proyecto
+
+```
+src/
+├── features/   ← feature modules (auth, stations, patients, cart)
+│   └── <name>/
+│       ├── components/
+│       ├── hooks/
+│       ├── screens/
+│       ├── services/
+│       └── store/
+└── shared/     ← código reusable cross-feature
+    ├── atoms/       (Button, Input, Icon, BlurWrapper)
+    ├── hooks/       (useResponsive, useScreenOrientation, useToast)
+    ├── molecules/   (EmptyState, ErrorState, FloatingTabBar, PatientCard)
+    ├── organisms/   (Screen, ScreenLoading, ScreenError)
+    ├── services/    (api, database, sync, mmkvStorage)
+    ├── types/       (interfaces compartidas)
+    └── utils/       (tokens, breakpoints, validation, config)
+```
+
+**Regla de hierro:** Un archivo en `features/a/` **no puede importar** de `features/b/`. Si dos features necesitan lo mismo, va a `shared/`.
+
+**Validación:** Después de cada fase, grepear `src/features/` imports desde otra feature. Ejemplo:
+```bash
+rg "src/features/(auth|stations|patients|cart)/" src/features/ | grep -v "src/features/\w\+/\1/"
+```
 
 ### **Fase 1: Infraestructura Responsiva y Detección**
 
@@ -53,8 +104,11 @@ Este plan se enfoca en adaptar la aplicación para una experiencia óptima y est
 1.  **Componente `Sidebar.tsx`:**
     *   **Archivo:** `src/features/layout/molecules/Sidebar.tsx`
     *   **Acción:** Crear un nuevo componente con **dos modos** según el ancho:
-        *   **Modo expandido** (≥1024px, iPad Pro landscape): 260px de ancho, glassmorphism (BlurView), borde derecho sutil. Muestra icono + label de texto.
+        *   **Modo expandido** (≥1024px, iPad Pro landscape): 260px de ancho, glassmorphism (`<BlurWrapper>`), borde derecho sutil. Muestra icono + label de texto.
         *   **Modo colapsado / Navigation Rail** (744–1024px, iPad Mini portrait, iPad Pro portrait): ~72px de ancho, solo iconos centrados. Inspirado en Twitter/X y YouTube.
+        *   **Anclaje crítico:** El contenedor raíz debe tener **ancho fijo** (260 o 72 según modo), **nunca `flex: 1`**, para no competir con el contenido del `<Slot />`.
+        *   **Glassmorphism:** Usar `<BlurWrapper>` de `@/src/shared/atoms/BlurWrapper` (no `<BlurView>` directo) — da fallback semi-transparente en Android.
+        *   **Ruta activa:** No comparar con `pathname === '/'`. Usar `pathname.startsWith('/(app)/(tabs)')` o comparar con la ruta exacta del tab (`/(app)/(tabs)/history`, etc.).
         *   **Transición:** Animación con Reanimated `useAnimatedStyle` para el ancho y opacidad del texto.
         *   **Contenido:** Elementos de navegación (`Estación`, `Historial`) con `Icon` SF Symbols. Usar **`Link` de `expo-router`** para navegar.
         *   **Integración:** Se renderizará en el layout principal de tablet (`TabletHomeShell.tsx`).
@@ -73,117 +127,60 @@ Este plan se enfoca en adaptar la aplicación para una experiencia óptima y est
 
 1.  **Bifurcación de Layout en `(app)/_layout.tsx`:**
     *   **Archivo:** `app/(app)/_layout.tsx`
-    *   **Acción:** Modificar este archivo para ser el punto de entrada condicional **universal**:
-        *   Usar el hook `useResponsive` para detectar `isTablet`.
-        *   Si `isTablet`, renderizar `TabletHomeShell` (que usará el `Sidebar` y un `<Slot />` para las subrutas).
-        *   Si no (`isPhone`), renderizar el `<Stack>` actual (para la navegación de teléfono).
+    *   **Acción:** Modificar para ser el punto de entrada condicional **universal**:
+        *   Usar `useResponsive` para detectar `isTablet`.
+        *   Si `isTablet`, renderizar `TabletHomeShell` con `<Slot />`.
+        *   Si no (`isPhone`), renderizar el `<Stack>` actual.
 
 2.  **Adaptación del Navegador de Tabs (`(tabs)/_layout.tsx`):**
     *   **Archivo:** `app/(app)/(tabs)/_layout.tsx`
-    *   **Acción:** **CORRECCIÓN CRÍTICA — No reemplazar `<Tabs>` por `<Slot />`.**
-        *   Mantener el `<Tabs>` intacto para preservar el estado de las pantallas (scroll, datos, suscripciones) al cambiar de pestaña.
-        *   Condicionar la visibilidad de `FloatingTabBar` con `tabBarStyle: { display: isTablet ? 'none' : undefined }`.
-        *   Así el sidebar en tablet maneja la navegación, pero las pantallas dentro de `(tabs)` mantienen su estado montado.
-        *   El `<Tabs>` solo tendrá las rutas `index` (estaciones) e `history` (historial).
+    *   **Acción:** Mantener `<Tabs>` intacto para preservar estado.
+        *   Ocultar `FloatingTabBar` en tablet con `tabBar={isTablet ? () => null : ...}`.
+        *   El sidebar maneja la navegación en tablet, pero las pantallas dentro de `(tabs)` siguen montadas.
 
-3.  **Zustand Store para Estado del Paciente Seleccionado:**
-    *   **Archivo:** `src/features/patients/store/patientUIStore.ts`
-    *   **Acción:** **CORRECCIÓN CRÍTICA — Estado compartido entre Master y Detail Column.**
-        *   Crear un mini-store con Zustand que exponga `selectedPatientId` y `setSelectedPatientId`.
-        *   Esto evita depender de la URL o de props para saber qué paciente está activo en el SplitView.
-        *   La `PatientList` (Master Column) llama a `setSelectedPatientId` al seleccionar.
-        *   La `Detail Column` lee `selectedPatientId` para saber qué mostrar.
-        ```typescript
-        import { create } from 'zustand';
-
-        interface PatientUIState {
-          selectedPatientId: string | null;
-          setSelectedPatientId: (id: string | null) => void;
-        }
-
-        export const usePatientUIStore = create<PatientUIState>((set) => ({
-          selectedPatientId: null,
-          setSelectedPatientId: (id) => set({ selectedPatientId: id }),
-        }));
-        ```
-
-4.  **Adaptación de la Ruta `paciente` (`app/(app)/paciente/_layout.tsx`):**
-    *   **Archivo:** `app/(app)/paciente/_layout.tsx`
-    *   **Acción:** Crear este archivo para el SplitView *específico* de pacientes:
-        ```tsx
-        import { Slot, Stack, useLocalSearchParams } from 'expo-router';
-        import { View } from 'react-native';
-        import { useResponsive } from '@/src/shared/hooks/useResponsive';
-        import { PatientList } from '@/features/patients/components/PatientList';
-
-        export default function PatientLayout() {
-          const { isTablet } = useResponsive();
-          const { stationId } = useLocalSearchParams();
-
-          if (isTablet) {
-            return (
-              <View style={{ flex: 1, flexDirection: 'row' }}>
-                {/* Master Column: renderizado explícito */}
-                <View style={{ width: 320, borderRightWidth: 1, borderColor: 'lightgray' }}>
-                   <PatientList stationId={stationId as string} />
-                </View>
-
-                {/* Detail Column: Slot con animación de entrada */}
-                <View style={{ flex: 1 }}>
-                  <Slot />
-                </View>
-              </View>
-            );
-          }
-
-          return <Stack />;
-        }
-        ```
-
-5.  **Adaptación de `app/(app)/paciente/[stationId].tsx`:**
-    *   **Archivo:** `app/(app)/paciente/[stationId].tsx`
-    *   **Acción:** En tablet, esta pantalla se convierte en el placeholder de la Detail Column:
-        ```tsx
-        export default function StationScreen() {
-          const { isTablet } = useResponsive();
-          const { stationId } = useLocalSearchParams();
-
-          if (isTablet) {
-             return <EmptyState message="Seleccione un paciente de la lista" icon="users" />;
-          }
-
-          return <PatientList stationId={stationId as string} />;
-        }
-        ```
-
-6.  **Transiciones Animadas en Detail Column:**
-    *   **Archivo:** `app/(app)/paciente/_layout.tsx`
-    *   **Acción:** **CORRECCIÓN CRÍTICA — El `<Slot />` cambia en seco.**
-        *   Envolver el `<Slot />` en un `Animated.View` con `entering={FadeIn.duration(200).delay(100)}` y `exiting={FadeOut.duration(150)}` de Reanimated.
-        *   Esto da una transición suave al seleccionar diferentes pacientes en la Master Column.
-
-7.  **Adaptación de Pantallas Individuales:**
-    *   **Estaciones (`index.tsx`):**
-        *   Se renderiza dentro del `<Tabs>` pero con la tab bar oculta en tablet. Al seleccionar una estación se navega a `/paciente/[stationId]` que activa el SplitView de pacientes.
-    *   **Menú del Paciente (`paciente/[stationId]/[patientId].tsx`):**
-        *   Ocupa la **Detail Column** del SplitView de pacientes. Sheets (cart, history) siguen funcionando igual.
-    *   **Historial (`history.tsx`):**
-        *   Se renderiza dentro del `<Tabs>`. Si se desea SplitView para historial, se necesitará un layout anidado similar a `app/(app)/paciente/_layout.tsx`.
-
-8.  **Componente `Screen.tsx` Adaptativo:**
+3.  **Componente `Screen.tsx` Adaptativo:**
     *   **Archivo:** `src/shared/organisms/Screen.tsx`
-    *   **Acción:** Añadir lógica para ajustar `paddingHorizontal` y estilos basado en `isTablet` y `isLandscape`.
+    *   **Acción:** Añadir `paddingHorizontal` responsive usando `useResponsive`:
+        *   Phone (< 744px): `0` (cada screen maneja su padding, como ahora)
+        *   Tablet colapsado (744-1024px): `Spacing.screen` (40)
+        *   Tablet/Desktop expandido (≥ 1024px): `Spacing.xl` (48) o `Spacing.xxl` (64)
+        *   Estrategia: aplicar el padding como estilo condicional basado en `isTablet`, sin romper el `style` prop que cada screen ya pasa.
 
-9.  **Componentes de Tarjeta Adaptativos:**
-    *   **Archivos:** `StationCard.tsx`, `PatientCard.tsx`
-    *   **Acción:** Modificar estilos para que en tablet las tarjetas se muestren en grid con más columnas o sean más grandes.
+4.  **Grid de Estaciones (`index.tsx`) — Adaptativo:**
+    *   **Archivo:** `app/(app)/(tabs)/index.tsx`
+    *   **Acción:** El grid de `StationCard` usa `flexWrap: 'wrap'` con porcentaje por columna.
+        *   Phone (< 744px): `width: '47%'` → 2 columnas (actual, sin cambios)
+        *   Tablet (744-1024px): `width: '47%'` → 2 columnas más grandes (más espacio disponible)
+        *   Desktop (≥ 1024px): `width: '30%'` → 3 columnas
+        *   El porcentaje se define condicionalmente en el estilo del wrapper o en la card.
+
+5.  **Lista de Pacientes (`[stationId].tsx`) — Adaptativo:**
+    *   **Archivo:** `app/(app)/paciente/[stationId].tsx`
+    *   **Acción:** El `FlatList` actual usa single column.
+        *   Phone (< 744px): `numColumns={1}` (actual, sin cambios)
+        *   Tablet (≥ 744px): `numColumns={2}` con `columnWrapperStyle={{ gap: Spacing.md }}`
+        *   Nota: `numColumns` requiere que el keyExtractor e ItemSeparator sean compatibles.
+
+6.  **Navegación en Tablet (sin SplitView):**
+    *   La experiencia tablet es de navegación secuencial, igual que en phone:
+        *   Estaciones → tap → lista de pacientes (ocupa el content completo)
+        *   Paciente → tap → menú del paciente (ocupa el content completo)
+        *   El `<Slot />` en `TabletHomeShell` se encarga de renderizar cada ruta
+        *   Sin cambios en las rutas `paciente/[stationId]` ni `[stationId]/[patientId]`
+        *   Sheets (cart, history) funcionan igual que en phone
 
 ### **Fase 6: Pulido y Verificación**
 
-1.  **Transiciones:** Dentro del SplitView la experiencia es de actualización de paneles. Las transiciones del `<Slot />` en la Detail Column se manejan con Reanimated (`FadeIn`/`FadeOut`). Entre rutas principales (sidebar -> tabs) las transiciones son instantáneas por diseño.
+1.  **Navegación:** Sin SplitView, la navegación es secuencial (sidebar → content). Las transiciones entre rutas son las nativas de expo-router. Dentro de `(tabs)`, el `<Tabs>` mantiene el estado montado.
 2.  **Manejo de Teclado:** Asegurar que el teclado en pantalla no interfiera con la interfaz en tablet.
-3.  **Testing:**
+3.  **FSD Audit:** Después de cada fase, verificar que no hay imports entre features:
+    ```bash
+    rg "src/features/(auth|stations|patients|cart)/" src/features/ | grep -v "src/features/\w\+/\1/"
+    ```
+    Si el comando produce output, hay una violación FSD. Mover el código compartido a `src/shared/`.
+
+4.  **TypeScript:** Ejecutar `npx tsc --noEmit` y resolver **todos** los errores del proyecto (ignorar `_scratch/` y `tmp/`).
+
+5.  **Testing:**
     *   Probar exhaustivamente en simuladores de iPad y tablets Android (varios tamaños y orientaciones).
     *   Verificar el funcionamiento en dispositivos físicos (especialmente tablets chinas con `deviceType` incorrecto).
-    *   Ejecutar `npx tsc --noEmit` para verificar la tipografía.
-    *   Ejecutar linters/formatters del proyecto (si aplican).

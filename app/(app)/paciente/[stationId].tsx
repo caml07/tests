@@ -14,11 +14,13 @@ import { Screen } from '@/src/shared/organisms/Screen'
 import { ScreenLoading } from '@/src/shared/organisms/ScreenLoading'
 import { ScreenError } from '@/src/shared/organisms/ScreenError'
 import { Spacing, Typography, space } from '@/src/shared/utils/tokens'
+import { useResponsive } from '@/src/shared/hooks/useResponsive'
 
 export default function PatientListScreen() {
   const { stationId } = useLocalSearchParams<{ stationId: string }>()
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
+  const { isTablet } = useResponsive()
   const { stations } = useStations()
   const station = stations.find(s => s.id === stationId)
   const { setSelectedStation } = useStationStore()
@@ -78,6 +80,8 @@ export default function PatientListScreen() {
           <FlatList
             data={patients}
             keyExtractor={(item) => item.id}
+            numColumns={isTablet ? 2 : 1}
+            columnWrapperStyle={isTablet ? { gap: Spacing.md } : undefined}
             refreshing={refreshing}
             onRefresh={onRefresh}
             renderItem={({ item }) => (

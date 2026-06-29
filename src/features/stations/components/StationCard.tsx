@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, type ViewStyle } from 'react-native'
 import { Icon } from '@/src/shared/atoms/Icon'
 import { useColorScheme } from '@/components/useColorScheme'
 import Colors from '@/constants/Colors'
@@ -10,14 +10,15 @@ interface StationCardProps {
   nombre: string
   selected: boolean
   onPress: () => void
+  wrapperStyle?: ViewStyle
 }
 
-export function StationCard({ id, nombre, selected, onPress }: StationCardProps) {
+export function StationCard({ id, nombre, selected, onPress, wrapperStyle }: StationCardProps) {
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
 
   return (
-    <PressableScale onPress={onPress} style={styles.wrapper}>
+    <PressableScale onPress={onPress} style={[styles.wrapper, wrapperStyle]}>
       <View
         style={[
           styles.card,

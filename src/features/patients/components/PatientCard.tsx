@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    width: '100%',
   },
   content: {
     padding: space[5],

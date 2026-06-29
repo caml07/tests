@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from '@/components/useColorScheme'
 import Colors from '@/constants/Colors'
 import { ConnectivityBanner } from '@/src/shared/atoms/ConnectivityBanner'
+import { useResponsive } from '@/src/shared/hooks/useResponsive'
+import { Spacing } from '@/src/shared/utils/tokens'
 
 interface ScreenProps {
   children: ReactNode
@@ -15,6 +17,11 @@ export function Screen({ children, style, edges = ['top', 'bottom'] }: ScreenPro
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
   const insets = useSafeAreaInsets()
+  const { isTablet, isDesktop } = useResponsive()
+
+  const responsivePadding = isTablet
+    ? { paddingHorizontal: isDesktop ? Spacing.lg : Spacing.md }
+    : undefined
 
   return (
     <View style={[
@@ -25,6 +32,7 @@ export function Screen({ children, style, edges = ['top', 'bottom'] }: ScreenPro
       edges.includes('left') && { paddingLeft: insets.left },
       edges.includes('right') && { paddingRight: insets.right },
       style,
+      responsivePadding,
     ]}>
       <StatusBar
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}

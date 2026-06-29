@@ -2,22 +2,44 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Patient, Dieta } from '@/src/shared/types'
 import { api } from '@/src/shared/services/api'
+import { getAllRows, getDbSync } from '@/src/shared/services/database'
 
 interface PatientWithDieta extends Patient {
   dietaNombre: string
   dietaSimbolo: string
 }
 
+async function fetchPacientes(stationId: string): Promise<Patient[]> {
+  try {
+    return await api.getPacientes(stationId)
+  } catch {
+    const db = getDbSync()
+    if (!db) return []
+    const rows = await getAllRows<Patient>(db, 'patients', 'stationId = ?', [stationId])
+    return rows
+  }
+}
+
+async function fetchDietas(): Promise<Dieta[]> {
+  try {
+    return await api.getDietas()
+  } catch {
+    const db = getDbSync()
+    if (!db) return []
+    return getAllRows<Dieta>(db, 'dietas')
+  }
+}
+
 export function usePatients(stationId: string, searchQuery: string) {
   const pacientesQuery = useQuery<Patient[]>({
     queryKey: ['pacientes', stationId],
-    queryFn: () => api.getPacientes(stationId),
+    queryFn: () => fetchPacientes(stationId),
     enabled: !!stationId,
   })
 
   const dietasQuery = useQuery<Dieta[]>({
     queryKey: ['dietas'],
-    queryFn: () => api.getDietas(),
+    queryFn: fetchDietas,
   })
 
   const filtered = useMemo<PatientWithDieta[]>(() => {

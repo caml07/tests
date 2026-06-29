@@ -92,9 +92,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isAuthenticated) return
-    getDb().then((db) => syncAll(db).then(() => {
-      queryClient.invalidateQueries()
-    })).catch(() => {})
+    getDb().then((db) => syncAll(db, queryClient)).catch(() => {})
   }, [isAuthenticated])
 
   const persister = useMemo(

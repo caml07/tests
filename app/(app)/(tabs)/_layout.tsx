@@ -7,13 +7,11 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      tabBar={props => <FloatingTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-        ...(isTablet ? { tabBarStyle: { display: 'none' as const } } : {}),
-      }}
+      tabBar={isTablet ? () => null : props => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="history" />
     </Tabs>
   )
 }
