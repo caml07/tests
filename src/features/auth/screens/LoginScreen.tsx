@@ -30,6 +30,7 @@ import {
 import { useAuthStore } from "@/src/features/auth/store/authStore";
 import { authenticateWithBiometrics } from "@/src/shared/services/biometricAuth";
 import { mmkv } from "@/src/shared/services/mmkvStorage";
+import { useResponsive } from "@/src/shared/hooks/useResponsive";
 
 export function LoginScreen() {
   const colorScheme = useColorScheme();
@@ -38,15 +39,17 @@ export function LoginScreen() {
   const { login, isLoading, error, clearError } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
   const biometricEnabled = useAuthStore((s) => s.biometricEnabled);
+  const { isPhone } = useResponsive();
 
   useEffect(() => {
+    if (!isPhone) return;
     ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT,
     ).catch(() => {});
     return () => {
       ScreenOrientation.unlockAsync().catch(() => {});
     };
-  }, []);
+  }, [isPhone]);
 
   const {
     control,

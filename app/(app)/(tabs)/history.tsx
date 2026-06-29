@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, memo, useEffect } from 'react'
+import { useFocusEffect } from 'expo-router'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { Icon } from '@/src/shared/atoms/Icon'
@@ -17,6 +18,7 @@ import { useToast } from '@/src/shared/hooks/useToast'
 import { api } from '@/src/shared/services/api'
 import { getDbSync, getAllRows } from '@/src/shared/services/database'
 import { DeadLetterBanner } from '@/src/shared/molecules/DeadLetterBanner'
+import { getPendingItems, subscribePendingUpdates } from '@/src/shared/services/sync'
 import type { Order, Patient } from '@/src/shared/types'
 
 function formatRelativeDate(ts: string): string {
@@ -75,13 +77,15 @@ function groupByPatient(orders: Order[], patientMap?: Map<string, Patient>): Pat
   return Object.values(groups).sort((a, b) => a.pacienteNombre.localeCompare(b.pacienteNombre, 'es'))
 }
 
-const statusColors = {
-  en_cocina: { bg: '#fef3c7', text: '#d97706', icon: 'flame.fill' },
-} as const
-
 function OrderItemsView({ orders, patientMap }: { orders: Order[]; patientMap: Map<string, Patient> }) {
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
+
+  const statusColors = {
+    en_cocina: { bg: '#fef3c7', text: '#d97706', icon: 'flame.fill' as const },
+    local_pending: { bg: colors.surfaceAlt, text: colors.textSecondary, icon: 'clock.fill' as const },
+  } as const
+
   const addItem = useCartStore((s) => s.addItem)
   const toast = useToast()
   const grouped = useMemo(() => groupByDate(orders), [orders])
@@ -105,13 +109,14 @@ function OrderItemsView({ orders, patientMap }: { orders: Order[]; patientMap: M
         <View key={group.date} style={styles.dateGroup}>
           <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{group.date}</Text>
           {group.orders.map((order) => {
-            const sc = statusColors.en_cocina
+            const sc = order.status === 'local_pending' ? statusColors.local_pending : statusColors.en_cocina
+            const statusLabel = order.status === 'local_pending' ? 'Esperando red...' : 'En cocina'
             return (
               <View key={order.id} style={[styles.orderCard, shadow.sm, { backgroundColor: colors.card }]}>
                 <View style={styles.orderHead}>
                   <View style={[styles.statusChip, { backgroundColor: sc.bg }]}>
                     <Icon name={sc.icon} tintColor={sc.text} size={12} />
-                    <Text style={[styles.statusText, { color: sc.text }]}>En cocina</Text>
+                    <Text style={[styles.statusText, { color: sc.text }]}>{statusLabel}</Text>
                   </View>
                   <Text style={[styles.orderTime, { color: colors.textTertiary }]}>
                     {formatTime(order.timestamp)}
@@ -211,11 +216,36 @@ export default function HistoryScreen() {
     queryFn: api.getPedidos,
   })
 
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([])
+
+  useFocusEffect(
+    useCallback(() => {
+      const db = getDbSync()
+      if (!db) return
+      const loadPending = () => {
+        getPendingItems(db).then((rows) => {
+          const transformed: Order[] = rows.map((r) => ({
+            id: r.id,
+            items: JSON.parse(r.items),
+            pacienteId: r.pacienteId,
+            timestamp: r.timestamp,
+            status: 'local_pending' as const,
+          }))
+          setPendingOrders(transformed)
+        }).catch(() => {})
+      }
+
+      loadPending()
+      const unsubscribe = subscribePendingUpdates(loadPending)
+      return unsubscribe
+    }, [])
+  )
+
   const groups = useMemo(() => {
-    if (!pedidos) return []
-    const enCocina = pedidos.filter((o: Order) => o.status === 'en_cocina')
-    return groupByPatient(enCocina, patientMap)
-  }, [pedidos, patientMap])
+    const enCocina = (pedidos || []).filter((o: Order) => o.status === 'en_cocina')
+    const todosLosPedidos = [...enCocina, ...pendingOrders]
+    return groupByPatient(todosLosPedidos, patientMap)
+  }, [pedidos, pendingOrders, patientMap])
 
   if (isLoading) {
     return (

@@ -3,7 +3,7 @@
     "name": "Dietas",
     "slug": "dietas",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/hospital_vivian_pellas.png",
     "scheme": "dietas",
     "userInterfaceStyle": "automatic",

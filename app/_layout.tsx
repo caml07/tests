@@ -45,6 +45,7 @@ function DatabaseSync() {
         try {
           const result = await flushQueue(await getDb())
           if (result.ok > 0) {
+            queryClient.invalidateQueries({ queryKey: ['pedidos'] })
             toast.show({ message: `✓ ${result.ok} pedido${result.ok > 1 ? 's' : ''} enviado${result.ok > 1 ? 's' : ''} a cocina`, icon: 'checkmark.circle.fill' })
           }
           if (result.failed > 0) {

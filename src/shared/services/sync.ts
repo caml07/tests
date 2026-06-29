@@ -5,6 +5,19 @@ import type { Station, Patient, Dieta, Comida, CartItem } from '@/src/shared/typ
 
 const MAX_RETRIES = 5
 
+let pendingListeners: Array<() => void> = []
+
+export function subscribePendingUpdates(listener: () => void) {
+  pendingListeners.push(listener)
+  return () => {
+    pendingListeners = pendingListeners.filter(l => l !== listener)
+  }
+}
+
+function notifyPendingUpdate() {
+  pendingListeners.forEach(l => l())
+}
+
 interface QueueEntry {
   id: string
   items: string
@@ -108,11 +121,22 @@ export async function flushQueue(db: SQLiteDatabase): Promise<SyncResult> {
     }
   }
 
+  notifyPendingUpdate()
+
   return { ok, failed }
 }
 
 export async function getDeadLetterItems(db: SQLiteDatabase): Promise<QueueEntry[]> {
   return getAllRows<QueueEntry>(db, 'pedidos_queue', "status = 'DEAD_LETTER'")
+}
+
+export async function getPendingItems(db: SQLiteDatabase): Promise<QueueEntry[]> {
+  const now = new Date().toISOString()
+  return getAllRows<QueueEntry>(
+    db,
+    'pedidos_queue',
+    "status IN ('PENDING', 'IN_FLIGHT')",
+  )
 }
 
 export async function retryDeadLetterItem(db: SQLiteDatabase, id: string): Promise<void> {

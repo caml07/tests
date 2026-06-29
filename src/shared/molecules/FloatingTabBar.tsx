@@ -1,10 +1,11 @@
-import { View, Text, Pressable, useWindowDimensions, Platform } from "react-native";
+import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
 import { Icon, type IconName } from "@/src/shared/atoms/Icon";
+import { BlurWrapper } from "@/src/shared/atoms/BlurWrapper";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -64,7 +65,9 @@ export function FloatingTabBar({
   const activeKey = state.routes[state.index]?.key;
 
   return (
-    <View
+    <BlurWrapper
+      intensity={80}
+      tint={colorScheme === 'dark' ? 'dark' : 'default'}
       style={{
         position: "absolute",
         bottom: space[6] + insets.bottom,
@@ -72,9 +75,10 @@ export function FloatingTabBar({
         right: Spacing.md,
         height: TAB_BAR_H,
         borderRadius: BorderRadius.xl,
-        backgroundColor: colors.card,
+        backgroundColor: 'transparent',
         borderWidth: 1,
         borderColor: colors.surfaceAlt,
+        overflow: 'hidden',
       }}
     >
       <Animated.View
@@ -137,6 +141,6 @@ export function FloatingTabBar({
           );
         })}
       </View>
-    </View>
+    </BlurWrapper>
   );
 }

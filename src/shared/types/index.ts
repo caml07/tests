@@ -74,6 +74,6 @@ export interface Order {
   items: CartItem[]
   pacienteId: string
   timestamp: string
-  status: 'sent' | 'en_cocina'
+  status: 'sent' | 'en_cocina' | 'local_pending'
 }
 

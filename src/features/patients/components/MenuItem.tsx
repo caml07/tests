@@ -61,23 +61,23 @@ function SubcomidaAccordion({ subcomida }: { subcomida: Subcomida }) {
 }
 
 export const MenuItem = memo(function MenuItem({ comida, onAddToCart }: MenuItemProps) {
-  const colorScheme = useColorScheme()
-  const colors = Colors[colorScheme]
-  const [expanded, setExpanded] = useState(false)
-  const chevronRotation = useSharedValue(0)
+    const colorScheme = useColorScheme()
+    const colors = Colors[colorScheme]
+    const [expanded, setExpanded] = useState(false)
+    const chevronRotation = useSharedValue(0)
 
-  const toggleExpand = () => {
-    const to = expanded ? 0 : 1
-    chevronRotation.value = withTiming(to, { duration: 250 })
-    setExpanded(!expanded)
-  }
+    const toggleExpand = () => {
+      const to = expanded ? 0 : 1
+      chevronRotation.value = withTiming(to, { duration: 250 })
+      setExpanded(!expanded)
+    }
 
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value * 90}deg` }],
-  }))
+    const chevronStyle = useAnimatedStyle(() => ({
+      transform: [{ rotate: `${chevronRotation.value * 90}deg` }],
+    }))
 
-  return (
-    <View style={[styles.card, shadow.sm, { backgroundColor: colors.card }]}>
+    return (
+      <View style={[styles.card, shadow.sm, { backgroundColor: colors.card }]}>
       <Pressable onPress={toggleExpand} style={styles.header}>
         <Text style={[styles.nombre, { color: colors.text }]} numberOfLines={1}>
           {comida.nombre}

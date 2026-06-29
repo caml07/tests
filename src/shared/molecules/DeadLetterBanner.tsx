@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useFocusEffect } from 'expo-router'
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
 import { Icon } from '@/src/shared/atoms/Icon'
 import { useColorScheme } from '@/components/useColorScheme'
@@ -66,6 +67,12 @@ export function DeadLetterBanner() {
       ],
     )
   }, [items, refresh, handleDescartar, handleReintentar])
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh()
+    }, [refresh])
+  )
 
   if (!items || items.length === 0) return null
 
