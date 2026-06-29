@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { loginSchema } from '@/src/utils/validation'
+import { loginSchema } from '@/src/shared/utils/validation'
 
 describe('loginSchema', () => {
   it('valida usuario y password correctos', () => {

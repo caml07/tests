@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "no-use-effect": {
+      "source": "alejandrobailo/no-use-effect",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "481e9423e779b5c88f5540b6a60e6d2bb76f5c696fc7c7d48a2b01b66f1239a3"
+    }
+  }
+}

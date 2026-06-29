@@ -1,0 +1,1 @@
+import { describe, it } from 'vitest'; import {} from 'react-native'; import {} from 'react-native-reanimated'; import {} from 'expo-haptics'; import {} from '@/src/shared/utils/tokens'; import {} from '@/src/shared/atoms/Icon'; import {} from '@/constants/Colors'; import {} from '@/components/useColorScheme'; describe('x', () => { it('works', () => {}); });

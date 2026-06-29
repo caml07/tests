@@ -1,0 +1,1 @@
+import { describe, it, expect } from 'vitest'; import { render, screen } from '@testing-library/react-native'; import { View, Text } from 'react-native'; describe('x', () => { it('works', () => { const r = render(<View><Text>hi</Text></View>); expect(r).toBeDefined(); }); });

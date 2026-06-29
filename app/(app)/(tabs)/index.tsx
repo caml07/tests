@@ -1,15 +1,17 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native'
-import { Icon } from '@/src/components/atoms/Icon'
+import { Icon } from '@/src/shared/atoms/Icon'
 import { router } from 'expo-router'
 import Colors from '@/constants/Colors'
 import { useColorScheme } from '@/components/useColorScheme'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useStations } from '@/src/hooks/useStations'
-import { useStationStore } from '@/src/store/stationStore'
-import { Button, Skeleton } from '@/src/components/atoms'
-import { EmptyState, ErrorState, StationCard } from '@/src/components/molecules'
-import { Screen } from '@/src/components/organisms/Screen'
-import { Spacing, Typography, color } from '@/src/utils/tokens'
+import { useAuth } from '@/src/features/auth/hooks/useAuth'
+import { useStations } from '@/src/features/stations/hooks/useStations'
+import { useStationStore } from '@/src/features/stations/store/stationStore'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Button, Skeleton } from '@/src/shared/atoms'
+import { EmptyState, ErrorState } from '@/src/shared/molecules'
+import { StationCard } from '@/src/features/stations/components/StationCard'
+import { Screen } from '@/src/shared/organisms/Screen'
+import { Spacing, Typography, color, space } from '@/src/shared/utils/tokens'
 
 export default function EstacionesScreen() {
   const colorScheme = useColorScheme()
@@ -17,13 +19,13 @@ export default function EstacionesScreen() {
   const { user, logout } = useAuth()
   const { stations, isLoading, error, refetch } = useStations()
   const { selectedStationId, setSelectedStation } = useStationStore()
-  const initials = user?.nombre?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
+  const insets = useSafeAreaInsets()
 
   return (
-    <Screen edges={['bottom']}>
+    <Screen edges={['top']}>
       <ScrollView
         style={[styles.container, { backgroundColor: colors.surface }]}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 64 + space[6] + insets.bottom + 16 }]}
       >
         <View style={styles.header}>
           <View style={styles.breadcrumbRow}>
@@ -35,7 +37,7 @@ export default function EstacionesScreen() {
 
         <View style={styles.hero}>
           <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-            <Text style={styles.avatarText}>{initials}</Text>
+            <Icon name="person.fill" tintColor={color.white} size={28} />
           </View>
           <Text style={[styles.title, { color: colors.text }]}>
             Hola, {user?.nombre?.split(' ')[0]}
@@ -92,7 +94,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.screen,
-    paddingBottom: Spacing.xxl,
   },
   header: {
     flexDirection: 'row',
@@ -106,9 +107,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   breadcrumb: {
-    ...Typography.caption1,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    ...Typography.loraCaption,
   },
   hero: {
     alignItems: 'center',
@@ -122,10 +121,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
-  },
-  avatarText: {
-    ...Typography.title1,
-    color: color.white,
   },
   title: {
     ...Typography.display,
@@ -146,12 +141,12 @@ const styles = StyleSheet.create({
     ...Typography.label,
   },
   skeletonGrid: {
-    gap: Spacing.sm,
+    gap: Spacing.md,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
+    gap: Spacing.md,
     justifyContent: 'center',
   },
 })

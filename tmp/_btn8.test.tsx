@@ -1,0 +1,1 @@
+import { describe, it } from 'vitest'; import { render, screen } from '@testing-library/react-native'; import { Button } from './Button'; describe('x', () => { it('works', () => { render(<Button title='hi' onPress={()=>{}} />); }); });

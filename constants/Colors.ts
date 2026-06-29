@@ -1,4 +1,4 @@
-import { color, darkColor } from '@/src/utils/tokens'
+import { color, darkColor } from '@/src/shared/utils/tokens'
 
 const Colors = {
   light: {
@@ -7,9 +7,8 @@ const Colors = {
     background: color.background,
     tint: color.primary,
     tabIconDefault: color.textTertiary,
-    tabIconSelected: color.secondary,
+    tabIconSelected: color.primary,
     muted: color.textSecondary,
-    outline: color.border,
     surface: color.surface,
     card: color.card,
     primary: color.primary,
@@ -25,9 +24,8 @@ const Colors = {
     background: darkColor.background,
     tint: darkColor.primary,
     tabIconDefault: darkColor.textTertiary,
-    tabIconSelected: darkColor.secondary,
+    tabIconSelected: darkColor.primary,
     muted: darkColor.textSecondary,
-    outline: darkColor.border,
     surface: darkColor.surface,
     card: darkColor.card,
     primary: darkColor.primary,

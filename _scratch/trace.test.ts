@@ -1,0 +1,1 @@
+console.log('A'); import { describe, it } from 'vitest'; console.log('B'); import { render } from '@testing-library/react-native'; console.log('C'); import { Button } from '../src/shared/atoms/Button'; console.log('D'); describe('x', () => { it('works', () => { console.log('E'); }); });

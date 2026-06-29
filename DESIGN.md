@@ -2,298 +2,364 @@
 name: Dietas
 description: App movil de comanda de dietas para enfermeria. Enfermeros comandan dietas para pacientes de su estacion contra API existente del hospital.
 stack: React Native + TypeScript + Expo SDK 56
+fonts:
+  display: Plus Jakarta Sans
+  weights: variable (200-800)
+  italic: Lora Italic (500)
 colors:
   primary: "#0284c7"
-  on-primary: "#ffffff"
-  primary-hover: "#0369a1"
+  primaryLight: "#e0f2fe"
+  primaryDark: "#0369a1"
   secondary: "#0ea5e9"
-  surface: "#f8fafc"
-  on-surface: "#0f172a"
-  on-surface-muted: "#64748b"
-  outline: "#e2e8f0"
-  error: "#ef4444"
+  background: "#f5f2ed"
+  surface: "#f5f2ed"
+  surfaceAlt: "#ede8e3"
+  textPrimary: "#1a1a1a"
+  textSecondary: "#5c5c5c"
+  textTertiary: "#9c9c9c"
   success: "#22c55e"
+  error: "#ef4444"
   warning: "#f59e0b"
-typography:
-  fontFamily: Inter
-  title:
-    fontSize: 17px
-    fontWeight: 600
-  body:
-    fontSize: 15px
-    fontWeight: 400
-  caption:
-    fontSize: 13px
-    fontWeight: 400
-  label:
-    fontSize: 12px
-    fontWeight: 500
-    textTransform: uppercase
-rounded:
-  sm: 6px
-  md: 10px
-  lg: 16px
+  white: "#ffffff"
+  border: "transparent"
+  card: "#ffffff"
+iconSet: lucide-react-native
 touchTarget: 44px
-iconSet: phosphor
+glassmorphism: true
 ---
 
-# Dietas — Design Spec
+# Dietas -- Design Spec
 
 ## Overview
 
-App movil para que **enfermeros/as** comanden dietas para pacientes de su estacion. Reemplaza el sistema actual en papel. Consume una API hospitalaria existente que provee pacientes, dietas, menus, y recibe pedidos.
+App movil para que **enfermeros/as** comanden dietas para pacientes de su
+estacion. Reemplaza el sistema actual en papel. Consume una mock API local
+(json-server) que provee pacientes, dietas, menus y recibe pedidos.
 
-**Stack:** React Native + TypeScript + Expo SDK 56  
-**Consume:** API existente del hospital (JWT, REST)
+**Stack:** React Native + TypeScript + Expo SDK 56
+**Router:** expo-router (file-based routing)
+**State:** Zustand 5 + @tanstack/react-query
+**Consume:** Mock API REST (json-server) -- migrar a API hospitalaria con JWT en prod
+
+---
+
+## Design Identity
+
+Estilo **Zen Browser aesthetic** -- minimalista, limpio, con toques de
+glassmorphism en elementos flotantes. Inspirado en la calma y claridad visual.
+
+Senales de identidad:
+- Fondo calido (`#f5f2ed`) en lugar de blanco puro
+- Bordes transparentes en cards -- la jerarquia se logra con sombras suaves y espaciado generoso
+- Glassmorphism en tab bar y bottom sheets via `BlurView` + `backdropFilter`
+- Lora Italic para acentos textuales (notas, labels decorativos)
+- Avatar con icono en vez de iniciales
+- Sin badges de fondo en dietas -- icono + texto limpios
 
 ---
 
 ## Color System
 
-Azul como color principal, inspirado en paletas healthcare que transmiten **confianza, calma y profesionalismo**.
+### Light
 
 | Token | Hex | Uso |
 |---|---|---|
-| `primary` | `#0284c7` | Botones principales, links, active states |
-| `primary-hover` | `#0369a1` | Hover/pressed de primary |
-| `secondary` | `#0ea5e9` | Badges, chips, indicadores secundarios |
-| `surface` | `#f8fafc` | Fondo de pantallas y cards |
-| `on-surface` | `#0f172a` | Texto principal, headings |
-| `on-surface-muted` | `#64748b` | Texto secundario, placeholders |
-| `outline` | `#e2e8f0` | Bordes de cards, inputs, separadores |
-| `error` | `#ef4444` | Alergias, errores, alertas criticas |
-| `success` | `#22c55e` | Confirmaciones, exito, delivered |
-| `warning` | `#f59e0b` | NPO, advertencias |
+| `primary` | `#0284c7` | Botones, links, active states |
+| `primaryLight` | `#e0f2fe` | Avatar bg, estacion seleccionada |
+| `primaryDark` | `#0369a1` | Hover/pressed |
+| `secondary` | `#0ea5e9` | Indicadores |
+| `background` | `#f5f2ed` | Fondo general (off-white calido) |
+| `surface` | `#f5f2ed` | Fondo de contenedores |
+| `surfaceAlt` | `#ede8e3` | Headers, botones secundarios |
+| `textPrimary` | `#1a1a1a` | Texto principal |
+| `textSecondary` | `#5c5c5c` | Texto secundario |
+| `textTertiary` | `#9c9c9c` | Iconos, textos muy secundarios |
+| `success` | `#22c55e` | Confirmaciones |
+| `error` | `#ef4444` | Errores, alertas |
+| `warning` | `#f59e0b` | Advertencias |
+| `white` | `#ffffff` | Cards, texto sobre primary |
+| `card` | `#ffffff` | Fondo de tarjetas |
+| `overlay` | `rgba(0,0,0,0.4)` | Backdrop modales |
+| `border` | `transparent` | Cards sin borde (solo sombra) |
+
+### Dark
+
+| Token | Hex |
+|---|---|
+| `primary` | `#38bdf8` |
+| `background` | `#1a1a1a` |
+| `surface` | `#1a1a1a` |
+| `surfaceAlt` | `#2a2a2a` |
+| `textPrimary` | `#f0ece4` |
+| `textSecondary` | `#a8a096` |
+| `textTertiary` | `#706860` |
+| `card` | `#2a2a2a` |
+
+Definidos en `src/shared/utils/tokens.ts`, expuestos via `constants/Colors.ts`
+como `Colors[colorScheme].primary/text/etc`.
 
 ---
 
-## UX Principles (User-Friendly)
+## Typography
 
-Basado en buenas practicas de mobile UX y accesibilidad para React Native:
+**Display:** Plus Jakarta Sans (variable 200-800)
+**Acentos:** Lora Italic (weight 500) -- para notas, pies, labels decorativos
+
+| Style | Size | Weight | Line H | Font | Uso |
+|---|---|---|---|---|---|
+| `display` | 34px | 700 | 41px | Plus Jakarta | Titulos de pantalla |
+| `title1` | 28px | 700 | 34px | Plus Jakarta | Titulos grandes |
+| `title2` | 22px | 700 | 28px | Plus Jakarta | Secciones |
+| `title3` | 20px | 600 | 25px | Plus Jakarta | Nombres estacion |
+| `headline` | 17px | 600 | 22px | Plus Jakarta | Nombres paciente/comida |
+| `body` | 17px | 400 | 22px | Plus Jakarta | Texto general |
+| `callout` | 16px | 400 | 21px | Plus Jakarta | Llamados |
+| `subhead` | 15px | 400 | 20px | Plus Jakarta | Subtitulos |
+| `footnote` | 13px | 400 | 18px | Plus Jakarta | Texto secundario |
+| `caption1` | 12px | 400 | 16px | Plus Jakarta | Texto pequeno |
+| `caption2` | 11px | 400 | 13px | Plus Jakarta | Tags |
+| `loraItalic` | 15px | 500 | 20px | Lora Italic | Notas, acentos |
+| `loraCaption` | 12px | 500 | 16px | Lora Italic | Captions decorativos |
+| `loraLabel` | 13px | 500 | 18px | Lora Italic | Labels |
+| `label` | 12px | 600 | 16px | Plus Jakarta | Labels form (uppercase, letter-spacing 0.5) |
+| `button` | 16px | 600 | 22px | Plus Jakarta | Botones |
+| `tab` | 11px | 500 | 14px | Plus Jakarta | Tab bar |
+
+---
+
+## UX Principles
 
 | Principio | Implementacion |
 |---|---|
-| **Thumb zone** | Acciones primarias siempre en tercio inferior. Navegacion inferior. |
-| **Touch targets ≥ 44px** | Todos los botones, chips, items de lista, iconos tapables. |
-| **Jerarquia visual clara** | Cards con sombra suave, espacio blanco generoso. |
-| **Feedback inmediato** | Toasts en acciones exitosas/fallidas. Indicador de conectividad permanente. |
-| **Confirmaciones** | Bottom sheets, nunca alert nativo. Boton destructivo alejado del confirmar. |
-| **Accesibilidad** | `accessibilityLabel`, `accessibilityRole`, `role` en todos los elementos. Soportar VoiceOver/TalkBack. |
-| **Reducir carga cognitiva** | Maximo 3 pasos para completar accion principal. Texto claro, sin jerga. |
-| **Modo offline** | Cache de menus, carrito persistente, indicador de conectividad. |
-
----
-
-## Estaciones como Cookies
-
-Las estaciones se muestran como **chips grandes (cookies)** horizontal scroll en la parte superior de la pantalla.
-
-```
-┌──────────────────────────────────────────┐
-│  [ 3er Piso ]  [ 5to Piso ]  [ UTI ]    │ ← scroll horizontal
-│                    ●                      │ ← indicador de paginacion
-└──────────────────────────────────────────┘
-```
-
-- Altura minima: 52px / touch target ≥ 44px
-- Chip seleccionado: `primary` bg + texto blanco + check icon
-- Chip no seleccionado: `outline` border + `on-surface-muted` texto
-- Persiste entre sesiones (AsyncStorage)
+| **Thumb zone** | Acciones primarias en tercio inferior. FloatingTabBar inferior. |
+| **Touch targets >= 44px** | Todos los elementos interactivos. |
+| **Jerarquia sin bordes** | Cards diferenciadas por sombra y espaciado, no por bordes. |
+| **Glassmorphism** | Tab bar y bottom sheets con blur traslucido. |
+| **Feedback inmediato** | Haptics + spring scale (Reanimated) en botones. |
+| **Gestos nativos** | Pan-to-dismiss en bottom sheets via Gesture Handler. |
+| **Confirmaciones** | Bottom sheets con glass effect, nunca Alert nativo. |
+| **Accesibilidad** | `accessibilityLabel`, `accessibilityRole`, `accessibilityState`. |
+| **Reducir carga cognitiva** | Maximo 3 pasos por accion. Texto sin jerga. |
 
 ---
 
 ## Screens
 
-### Login (`FR-01`)
-- Centered card, input de user + password
-- Boton "Ingresar" grande (≥ 56px height)
-- Error state: mensaje inline rojo debajo del boton
-- Al exito: naviga a estaciones
-- Al expirar token: modal de re-login que preserva carrito
+### Login
+
+- Hero con logo del hospital sobre circulo primary
+- Form card: input usuario + contrasena con iconos Lucide
+- Checkbox "Recordarme" (Zustand persist)
+- Boton "Ingresar" grande (56px) con icono + loading state
+- Error state inline rojo
 
 ```
-┌──────────────┐
-│   Hospital   │
-│  ┌────────┐  │
-│  │ Usuario │  │
-│  └────────┘  │
-│  ┌────────┐  │
-│  │ Contrase│  │
-│  └────────┘  │
-│  [ Ingresar ]│ ← primary, full-width, 56px
-└──────────────┘
++------------------+
+|    +--------+    |
+|    | LOGO   |    |
+|    +--------+    |
+|     Dietas       |
+|  Hospital V.P.   |
+|                  |
+|  + Usuario ----+ |
+|  | person.fill | |
+|  +-------------+ |
+|  + Contrasena + |
+|  | lock.fill   | |
+|  +-------------+ |
+|  [ ] Recordarme  |
+|  +-------------+ |
+|  |  INGRESAR > | |
+|  +-------------+ |
++------------------+
 ```
 
-### Estaciones (`FR-02`)
-- Cookies horizontal scroll (ver seccion arriba)
-- Al seleccionar: muestra lista de pacientes de esa estacion
-- Transition animada al cambiar de estacion
+### Estaciones
 
-### Pacientes (`FR-03`)
-- Search bar en top con icono de lupa
-- FlatList virtualizada de pacientes
-- Cada card:
-
-```
-┌─────────────────────────────────┐
-│  🛏️ 301A    Juan Perez          │
-│  Dieta: Hiposodica       ⚠️     │ ← badge alergia si aplica
-│  Notas: Sin sal              ›  │
-└─────────────────────────────────┘
-```
-
-- Busqueda por nombre con debounce 300ms
-- Al tap: navega al menu de ese paciente
-
-### Menu Expandible (`FR-04`)
-- Chips de tiempo: **D**esayuno / **A**lmuerzo / **M**erienda / **C**ena
-- Selector de tiempo persiste entre pacientes
-- Arbol expandible:
+- Header con avatar (icono person.fill), nombre del enfermero, boton "Salir"
+- Grid de StationCards (2 columnas, 47% width)
+- Card: icono building.2.fill centrado + nombre
+- Estado selected: fondo primaryLight + borde primary 1.5px + sombra md
+- Estado normal: fondo card blanco + sombra sm, sin borde
+- Skeleton loading (3 cards), ErrorState, EmptyState
+- Pull-to-refresh
 
 ```
-┌─────────────────────────────────┐
-│  ▼ Pollo al horno               │
-│  │  • Pechuga de pollo          │
-│  │  • Pure de papas             │
-│  │    ───────────────────       │
-│  │    Ingredientes: pollo,      │
-│  │    papa, leche, manteca      │
-│  │  • Ensalada de lechuga       │
-│  │    ───────────────────       │
-│  │    Ingredientes: lechuga,    │
-│  │    tomate, cebolla           │
-│  [Agregar al carrito]           │ ← CTA grande
-└─────────────────────────────────┘
++------------------------------+
+| [person] Hola, Andrea  Salir |
+| Elegi una estacion           |
+|                              |
+| +--------+ +--------+        |
+| |building| |building|        |
+| | 3er    | | 5to    |        |
+| | Piso   | | Piso   |        |
+| +--------+ +--------+        |
+| +--------+                   |
+| |building|                   |
+| | UTI    |                   |
+| +--------+                   |
++------------------------------+
 ```
 
-- Animacion suave de expansion (Reanimated)
-- Tap en comida → expande subcomidas
-- Tap en subcomida → expande ingredientes
-- Boton "Agregar al carrito" al final de cada comida
+### Pacientes
 
-### Carrito Global (`FR-05`, `FR-06`)
-- Bottom sheet o pantalla separada
-- Items agrupados por paciente
-- Cada item:
-
-```
-┌─────────────────────────────────┐
-│  Juan Perez (301A)              │
-│  Pollo al horno — Hoy     [🗑️]  │
-│  Nota: Sin sal                  │
-├─────────────────────────────────┤
-│  Maria Lopez (302B)             │
-│  Sopa de verduras — Mañana [🗑️] │
-└─────────────────────────────────┘
-```
-
-- Swipe to remove con confirmacion
-- Flag Hoy/Mañana como badge (Hoy = `primary`, Mañana = `warning`)
-- Persiste en AsyncStorage via Zustand persist
-
-### Envio a Cocina (`FR-07`)
-- Bottom sheet de confirmacion:
+- Header con nombre de estacion + back button
+- Search bar con lupa + filtrado local
+- FlatList de PatientCards
+- Card: avatar (person.fill icon), nombre, habitacion/cama, dieta con icono + texto, alergias con icono warning, notas, chevron
+- Sin borde en card, solo sombra suave
+- Spaciado generoso (padding 20, gap 12)
+- Skeleton (6 items), EmptyState, Pull-to-refresh
 
 ```
-┌─────────────────────────────────┐
-│   Enviar a cocina               │
-│                                 │
-│   5 items de 3 pacientes        │
-│   Se enviaran a cocina ahora    │
-│                                 │
-│       [Cancelar]  [Enviar]      │
-└─────────────────────────────────┘
++------------------------------+
+| < building 3er Piso          |
+| + search Buscar paciente... +|
+| +----------------------------+|
+| | [person] Juan Perez       ||
+| | bed.double 301 - Cama A   ||
+| | heart.fill Hiposodica   > ||
+| +----------------------------+|
+| +----------------------------+|
+| | [person] Maria Lopez      ||
+| | bed.double 302 - Cama B   ||
+| | heart.fill Diabetica ! > ||
+| +----------------------------+|
++------------------------------+
 ```
 
-- Loader durante POST
-- Success toast: "Pedido enviado" + carrito se limpia
-- Error toast: "Error al enviar" + reintentar
+### Menu del Paciente
 
-### Historial (`FR-08`)
+- PatientMenuHeader: avatar, nombre, habitacion/cama, badge de dieta
+- Tiempo chips horizontal scroll (D/A/M/C) con iconos Lucide
+- FlatList de MenuItems expandibles con Reanimated
+- MenuItem: nombre + chevron rotado 90deg al expandir
+- Expandido: subcomidas con ingredientes, bullet, boton "Agregar"
+- Skeleton (6 items)
+
+```
++------------------------------+
+| < [person] Juan Perez        |
+|    Hab. 301 - Cama A         |
+|    heart.fill Hiposodica     |
+|                              |
+| [sunrise D] [sun A] [moon C] |
+|                              |
+| +----------------------------+|
+| | Pollo al horno        >   ||
+| | ---                        ||
+| | * Pechuga de pollo        ||
+| |   Ingredientes: pollo, sal||
+| | * Pure de papas            ||
+| | [ + Agregar ]              ||
+| +----------------------------+|
++------------------------------+
+```
+
+### Carrito (stub)
+
+- FloatingTabBar con badge de cantidad
+- Lista de items agrupados por paciente
+- Badge Hoy / Manana
+
+### Historial (stub)
+
 - FlatList de pedidos enviados
-- Filtro por paciente (dropdown/bottom sheet)
-- Cada card: fecha, hora, items del pedido, paciente
+- Filtro por paciente
 
 ---
 
-## Flujo Principal
+## Glassmorphism
+
+Elementos que usan el efecto glass:
+
+| Componente | iOS | Web |
+|---|---|---|
+| FloatingTabBar | `BlurView intensity={80}` | `backdropFilter: blur(20px)` + `background: rgba(255,255,255,0.75)` |
+| BottomSheet | `BlurView intensity={80}` | `backdropFilter: blur(20px)` + `background: rgba(255,255,255,0.85)` |
+
+En dark mode: `rgba(26,26,26,0.75)` para tab bar, `rgba(26,26,26,0.85)` para sheet.
+
+---
+
+## Routing Architecture
 
 ```
-Login → Seleccionar estacion → Ver pacientes → Elegir paciente
-→ Elegir tiempo (D/A/M/C) → Explorar menu expandible
-→ Agregar al carrito (Hoy/Mañana + nota) → Revisar carrito
-→ Enviar a cocina → Confirmar → POST → Feedback → Carrito limpio
+app/
+  _layout.tsx              Root Stack + QueryClientProvider + Zustand persist
+  +not-found.tsx           404
+  +html.tsx                Shell HTML (web)
+  login.tsx                pantalla publica
+  (app)/
+    _layout.tsx            Stack con auth guard
+    (tabs)/
+      _layout.tsx          Tabs con FloatingTabBar (glass)
+      index.tsx            EstacionesScreen
+      cart.tsx             CartScreen (stub)
+      history.tsx          HistoryScreen (stub)
+  (app)/paciente/
+    [stationId].tsx        PatientListScreen
+    [stationId]/
+      [patientId].tsx      PatientMenuScreen
 ```
+
+---
+
+## Component Architecture
+
+### Atoms (`src/shared/atoms/`)
+
+- **Button** -- 4 variants, icon prop, spring scale + haptics
+- **Input** -- animated focus border (interpolateColor), leftIcon Lucide, label + error
+- **Checkbox** -- PressableScale + icon checkmark
+- **Chip** -- 36px minHeight, icon + label, haptic
+- **Skeleton** -- shimmer animado
+- **Spinner** -- fullScreen variant
+- **Icon** -- Lucide unificado cross-platform
+- **PressableScale** -- spring scale wrapper
+
+### Molecules (`src/shared/molecules/`)
+
+- **EmptyState** -- icon + title + message
+- **ErrorState** -- icon + message + retry button
+- **FloatingTabBar** -- glassmorphism con BlurView, 3 tabs
+
+### Organisms (`src/shared/organisms/`)
+
+- **Screen** -- SafeArea-aware wrapper
+- **ScreenLoading** -- skeleton placeholder
+- **ScreenError** -- error + retry
+- **BottomSheet** -- glassmorphism + Gesture Handler pan-to-dismiss
+- **PatientMenuHeader** -- header + Skeleton variant
+- **ToastProvider** + **useToast** -- slide-up, 3s auto-dismiss
+
+---
+
+## Data Flow & State
+
+| Capa | Tecnologia | Proposito |
+|---|---|---|
+| **Server state** | @tanstack/react-query v5 | Pacientes, dietas, menus, estaciones |
+| **Client state** | Zustand v5 | Auth (user, token), estacion seleccionada |
+| **Persistencia** | Zustand persist + AsyncStorage | Sesion (condicional a rememberMe) |
+| **API calls** | `src/shared/services/api.ts` | request con auto-inyeccion de token |
+| **Validation** | react-hook-form + zod | Login |
 
 ---
 
 ## Core Entities
 
-```typescript
-interface User {
-  id: string
-  nombre: string
-  estaciones: StationId[]
-  token: string         // JWT
-}
+Definiciones en `src/shared/types/index.ts`:
 
-interface Station {
-  id: string
-  nombre: string        // "3er Piso", "UTI", etc.
-}
-
-interface Patient {
-  id: string
-  nombre: string
-  habitacion: string
-  cama: string
-  dietaId: string
-  alergias: string[]
-  notas: string
-}
-
-interface Dieta {
-  id: string
-  nombre: string        // "Hiposodica", "Diabetica", etc.
-  tiempos: TiempoComida[]
-}
-
-interface Comida {
-  id: string
-  nombre: string
-  subcomidas: Subcomida[]
-}
-
-interface Subcomida {
-  id: string
-  nombre: string
-  descripcion: string
-  ingredientes: Ingrediente[]
-}
-
-interface Ingrediente {
-  id: string
-  nombre: string
-  descripcion: string
-}
-
-interface CartItem {
-  id: string
-  comidaId: string
-  comidaNombre: string
-  pacienteId: string
-  flagHoy: boolean       // true = Hoy, false = Mañana
-  nota: string
-}
-
-interface Order {
-  id: string
-  items: CartItem[]
-  pacienteId: string
-  timestamp: string
-  status: "sent" | "delivered"
-}
-```
+- **User:** id, nombre, estaciones
+- **Station:** id, nombre
+- **Patient:** id, nombre, stationId, habitacion, cama, dietaId, alergias[], notas
+- **Dieta:** id, nombre, tiempos[], simbolo
+- **Comida:** id, dietaId, nombre, tiempo, subcomidas[]
+- **Subcomida:** id, nombre, descripcion, ingredientes[]
+- **Ingrediente:** id, nombre, descripcion
+- **CartItem:** id, comidaId, comidaNombre, pacienteId, pacienteNombre, flagHoy, nota
+- **Order:** id, items[], pacienteId, timestamp, status
 
 ---
 
@@ -301,17 +367,48 @@ interface Order {
 
 | ID | Nombre | Implementacion |
 |---|---|---|
-| NFR-01 | Conectividad | Indicador en status bar. Timeout configurable (default 10s). Retry en errores. Offline banner. |
-| NFR-02 | Rendimiento | FlatList virtualizada. Cache de menus (TTL 5min). Lazy loading de arbol expandible. |
-| NFR-03 | UX | Touch targets ≥ 44px. Arbol con animaciones. Botones grandes. Confirmaciones en acciones destructivas. |
-| NFR-04 | Seguridad | JWT en react-native-encrypted-storage. HTTPS. No persistir credenciales. |
-| NFR-05 | Persistencia | Carrito en Zustand persist (AsyncStorage). Relogin modal preserva carrito. |
-| NFR-06 | Responsive | react-native-responsive-screen. Phones y tablets. Grid adaptativo. |
-| NFR-07 | Clean Architecture | Separation UI / business logic / data. TypeScript estricto. Custom hooks. |
-| NFR-08 | Plataforma | Android + iOS via Expo. |
+| NFR-01 | Conectividad | React Query retry + ErrorState con onRetry |
+| NFR-02 | Rendimiento | FlatList + Query cache (staleTime) + lazy expansion |
+| NFR-03 | UX | Touch targets >= 44px, haptics, Reanimated, skeleton loading, pull-to-refresh |
+| NFR-04 | Seguridad | Zustand persist + AsyncStorage. Prod: encrypted storage |
+| NFR-05 | Persistencia | Zustand persist (auth condicional, carrito pendiente) |
+| NFR-06 | Responsive | react-native-responsive-screen, grid adaptativo |
+| NFR-07 | Arquitectura | Features por dominio, TypeScript estricto |
+| NFR-08 | Plataforma | iOS + Android + Web. Glassmorphism via BlurView nativo / backdropFilter web |
 
 ---
 
-## Diagrama de Flujo
+## Dependencias principales
 
-Ver `docs/diagrama-flujo.puml` para el diagrama de secuencia detallado.
+- Expo SDK 56, expo-router
+- React Native 0.85, React 19
+- Reanimated 4, Gesture Handler
+- Zustand 5 + @tanstack/react-query v5
+- lucide-react-native + react-native-svg
+- expo-blur (glassmorphism)
+- react-hook-form + zod
+- expo-haptics, expo-font
+- react-native-safe-area-context
+- json-server (mock API local)
+- @react-native-async-storage/async-storage
+
+## Paths
+
+- `@/*` -> `./*` (raiz)
+- Iconos: `src/shared/atoms/Icon.tsx`
+- Colores: `constants/Colors.ts`
+- Tokens: `src/shared/utils/tokens.ts`
+- API: `src/shared/services/api.ts`
+- DB mock: `docs/db.json`
+
+## Commands
+
+| Comando | Accion |
+|---|---|
+| `npm start` | Dev server |
+| `npm run web` | Web dev server |
+| `npm run android` | Android |
+| `npm run ios` | iOS |
+| `npx json-server docs/db.json --port 3001` | Mock API |
+| `npm test` | Vitest |
+| `npx tsc --noEmit` | TypeScript check |

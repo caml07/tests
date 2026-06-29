@@ -1,0 +1,1 @@
+import { describe, it, expect, vi } from 'vitest'; import { render, screen, userEvent } from '@testing-library/react-native'; import { Button } from './Button'; vi.useFakeTimers(); describe('x', () => { it('works', async () => { await render(<Button title='hi' onPress={()=>{}} />); expect(screen.getByText('hi')).toBeOnTheScreen(); }); });

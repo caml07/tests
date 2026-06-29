@@ -1,69 +1,51 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { api } from '@/src/services/api'
+import { api } from '@/src/shared/services/api'
 
-vi.mock('@/src/utils/config', () => ({
+vi.mock('@/src/shared/utils/config', () => ({
   API_BASE: 'http://localhost:3001',
 }))
 
-const mockNurse = {
-  id: '1',
-  nombre: 'Enfermera Andrea',
-  usuario: 'andrea',
-  password: '1234',
-  estaciones: ['1', '2'],
-}
-
-const allNurses = [
-  mockNurse,
-  { id: '2', nombre: 'Enfermero Carlos', usuario: 'carlos', password: '1234', estaciones: ['2', '3'] },
-  { id: '3', nombre: 'Enfermera Maria', usuario: 'maria', password: '1234', estaciones: ['1', '3'] },
-]
+vi.mock('@/src/shared/services/mmkvStorage', () => ({
+  mmkv: {
+    getString: vi.fn(() => null),
+    set: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
 
 beforeEach(() => {
   vi.restoreAllMocks()
 })
 
 describe('api.login', () => {
-  it('devuelve token y user con credenciales válidas', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+  it('hace POST a /auth/login con credenciales', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(allNurses),
+      json: () => Promise.resolve({ user: { id: '1', nombre: 'Test', estaciones: ['1'] }, token: 'real-token-abc' }),
     })
+    global.fetch = fetchMock
 
-    const res = await api.login({ usuario: 'andrea', password: '1234' })
+    const res = await api.login({ usuario: 'test', password: '1234' })
 
-    expect(res.user.nombre).toBe('Enfermera Andrea')
-    expect(res.user.id).toBe('1')
-    expect(res.user.estaciones).toEqual(['1', '2'])
-    expect(res.token).toContain('mock-token-')
-  })
+    const url = fetchMock.mock.calls[0][0] as string
+    expect(url).toContain('/auth/login')
 
-  it('lanza error con password incorrecto', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(allNurses),
-    })
+    const options = fetchMock.mock.calls[0][1] as RequestInit
+    expect(options.method).toBe('POST')
+    expect(JSON.parse(options.body as string)).toEqual({ usuario: 'test', password: '1234' })
 
-    await expect(api.login({ usuario: 'andrea', password: 'wrong' })).rejects.toThrow('incorrectos')
-  })
-
-  it('lanza error con usuario inexistente', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(allNurses),
-    })
-
-    await expect(api.login({ usuario: 'x', password: 'y' })).rejects.toThrow('incorrectos')
+    expect(res.user.nombre).toBe('Test')
+    expect(res.token).toBe('real-token-abc')
   })
 
   it('lanza error si la API responde con error HTTP', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
-      status: 500,
-      json: () => Promise.resolve({ error: 'Error interno' }),
+      status: 401,
+      json: () => Promise.resolve({ error: 'Credenciales inválidas' }),
     })
 
-    await expect(api.login({ usuario: 'x', password: 'y' })).rejects.toThrow('Error interno')
+    await expect(api.login({ usuario: 'x', password: 'y' })).rejects.toThrow('Credenciales inválidas')
   })
 
   it('lanza error de conexión si fetch falla', async () => {
@@ -72,18 +54,20 @@ describe('api.login', () => {
     await expect(api.login({ usuario: 'x', password: 'y' })).rejects.toThrow('Network request failed')
   })
 
-  it('hace fetch a /nurses sin query params', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+  it('postPedido envia status sent', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(allNurses),
+      json: () => Promise.resolve({ id: '1', items: [], pacienteId: 'p1', timestamp: new Date().toISOString(), status: 'sent' }),
     })
-    global.fetch = fetchMock
+    global.fetch = mockFetch
 
-    await api.login({ usuario: 'andrea', password: '1234' })
+    await api.postPedido([{
+      id: '1', comidaId: 'c1', comidaNombre: 'Arroz', pacienteId: 'p1',
+      pacienteNombre: 'Juan', flagHoy: true, nota: '', createdAt: new Date().toISOString(),
+    }])
 
-    const url = fetchMock.mock.calls[0][0] as string
-    expect(url).toContain('/nurses')
-    expect(url).not.toContain('?')
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body)
+    expect(body.status).toBe('sent')
   })
 
   it('getPacientes filtra localmente por stationId', async () => {

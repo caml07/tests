@@ -1,0 +1,1 @@
+import { describe, it, expect } from 'vitest'; import { render, screen } from '@testing-library/react-native'; import { Button } from '../src/shared/atoms/Button'; describe('x', () => { it('works', () => { console.log('BEFORE RENDER'); render(<Button title='hi' onPress={()=>{}} />); console.log('AFTER RENDER'); }); });

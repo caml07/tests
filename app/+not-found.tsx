@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'
 import { Text, View } from '@/components/Themed'
 import Colors from '@/constants/Colors'
 import { useColorScheme } from '@/components/useColorScheme'
-import { Typography, Spacing } from '@/src/utils/tokens'
+import { Typography, Spacing } from '@/src/shared/utils/tokens'
 
 export default function NotFoundScreen() {
   const colorScheme = useColorScheme()

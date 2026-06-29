@@ -1,0 +1,1 @@
+import React from 'react'; import { describe, it } from 'vitest'; import { render } from '@testing-library/react-native'; import { View } from 'react-native'; describe('x', () => { it('works', () => { render(React.createElement(View, null)); }); });

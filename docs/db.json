@@ -1,144 +1,1781 @@
 {
   "nurses": [
-    { "id": "1", "nombre": "Enfermera Andrea", "usuario": "andrea", "password": "1234", "estaciones": ["1", "2"] },
-    { "id": "2", "nombre": "Enfermero Carlos", "usuario": "carlos", "password": "1234", "estaciones": ["2", "3"] },
-    { "id": "3", "nombre": "Enfermera Maria", "usuario": "maria", "password": "1234", "estaciones": ["1", "3"] },
-    { "id": "4", "nombre": "Enfermera Laura", "usuario": "laura", "password": "1234", "estaciones": ["1", "4"] },
-    { "id": "5", "nombre": "Enfermero Pablo", "usuario": "pablo", "password": "1234", "estaciones": ["2", "5"] },
-    { "id": "6", "nombre": "Enfermera Sofia", "usuario": "sofia", "password": "1234", "estaciones": ["3", "4", "5"] }
+    {
+      "id": "1",
+      "nombre": "Enfermera Andrea",
+      "usuario": "andrea",
+      "password": "1234",
+      "estaciones": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "id": "2",
+      "nombre": "Enfermero Carlos",
+      "usuario": "carlos",
+      "password": "1234",
+      "estaciones": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "id": "3",
+      "nombre": "Enfermera Maria",
+      "usuario": "maria",
+      "password": "1234",
+      "estaciones": [
+        "1",
+        "3"
+      ]
+    },
+    {
+      "id": "4",
+      "nombre": "Enfermera Laura",
+      "usuario": "laura",
+      "password": "1234",
+      "estaciones": [
+        "1",
+        "4"
+      ]
+    },
+    {
+      "id": "5",
+      "nombre": "Enfermero Pedro",
+      "usuario": "pedro",
+      "password": "1234",
+      "estaciones": [
+        "2",
+        "4"
+      ]
+    },
+    {
+      "id": "6",
+      "nombre": "Enfermera Sofia",
+      "usuario": "sofia",
+      "password": "1234",
+      "estaciones": [
+        "3",
+        "5"
+      ]
+    }
   ],
   "stations": [
-    { "id": "1", "nombre": "3er Piso" },
-    { "id": "2", "nombre": "5to Piso" },
-    { "id": "3", "nombre": "UTI" },
-    { "id": "4", "nombre": "2do Piso — Cirugía" },
-    { "id": "5", "nombre": "4to Piso — Pediatría" }
+    {
+      "id": "1",
+      "nombre": "3er Piso"
+    },
+    {
+      "id": "2",
+      "nombre": "5to Piso"
+    },
+    {
+      "id": "3",
+      "nombre": "UTI"
+    },
+    {
+      "id": "4",
+      "nombre": "Pediatría"
+    },
+    {
+      "id": "5",
+      "nombre": "Maternidad"
+    }
   ],
   "dietas": [
-    { "id": "1", "nombre": "Dieta Blanda", "tiempos": ["D", "A", "C"] },
-    { "id": "2", "nombre": "Dieta General", "tiempos": ["D", "A", "M", "C"] },
-    { "id": "3", "nombre": "NPO", "tiempos": [] },
-    { "id": "4", "nombre": "Dieta hiposodica", "tiempos": ["D", "A", "C"] },
-    { "id": "5", "nombre": "Liquidos generales", "tiempos": ["D", "A", "M", "C"] },
-    { "id": "8", "nombre": "Dieta Diabetica", "tiempos": ["D", "A", "C"] },
-    { "id": "11", "nombre": "Puré o papillas", "tiempos": ["D", "A", "C"] },
-    { "id": "12", "nombre": "Dieta Renal", "tiempos": ["D", "A", "C"] },
-    { "id": "13", "nombre": "Dieta Gastritis", "tiempos": ["D", "A", "M", "C"] }
+    {
+      "id": "1",
+      "nombre": "Hiposódica",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "heart.fill"
+    },
+    {
+      "id": "2",
+      "nombre": "Diabética",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "drop.fill"
+    },
+    {
+      "id": "3",
+      "nombre": "Líquidos",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "cena"
+      ],
+      "simbolo": "cup.and.saucer.fill"
+    },
+    {
+      "id": "4",
+      "nombre": "Blanda",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "fork.knife"
+    },
+    {
+      "id": "5",
+      "nombre": "Hipocalórica",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "cena"
+      ],
+      "simbolo": "scalemass.fill"
+    },
+    {
+      "id": "6",
+      "nombre": "Sin Gluten",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "leaf.fill"
+    },
+    {
+      "id": "7",
+      "nombre": "Renal",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "cena"
+      ],
+      "simbolo": "drop.circle.fill"
+    },
+    {
+      "id": "8",
+      "nombre": "Hipersódica",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "plus.circle.fill"
+    },
+    {
+      "id": "9",
+      "nombre": "General",
+      "tiempos": [
+        "desayuno",
+        "almuerzo",
+        "merienda",
+        "cena"
+      ],
+      "simbolo": "person.fill"
+    }
   ],
   "patients": [
-    { "id": "4752493", "nombre": "Juan Pérez López", "stationId": "1", "habitacion": "101", "cama": "A", "dietaId": "3", "alergias": ["frutos secos", "mariscos"], "notas": "Alergia severa. Vigilar reacción." },
-    { "id": "4752494", "nombre": "María García Hernández", "stationId": "1", "habitacion": "102", "cama": "B", "dietaId": "2", "alergias": [], "notas": "Dieta general. Sin complicaciones." },
-    { "id": "4752495", "nombre": "Carlos Rodríguez", "stationId": "2", "habitacion": "201", "cama": "A", "dietaId": "5", "alergias": ["lactosa"], "notas": "Post-operatorio de apendicitis." },
-    { "id": "4752496", "nombre": "Ana Martínez", "stationId": "2", "habitacion": "202", "cama": "A", "dietaId": "2", "alergias": [], "notas": "" },
-    { "id": "4752497", "nombre": "Pedro Sánchez", "stationId": "3", "habitacion": "301", "cama": "A", "dietaId": "3", "alergias": [], "notas": "Endoscopía programada. NPO estricto." },
-    { "id": "4752498", "nombre": "Laura Torres", "stationId": "3", "habitacion": "302", "cama": "B", "dietaId": "1", "alergias": ["huevo"], "notas": "Gastritis crónica." },
-    { "id": "4752499", "nombre": "Roberto Flores", "stationId": "1", "habitacion": "101", "cama": "B", "dietaId": "11", "alergias": [], "notas": "Dificultad para tragar. Dieta en papillas." },
-    { "id": "4752500", "nombre": "Diana Ríos", "stationId": "1", "habitacion": "103", "cama": "A", "dietaId": "4", "alergias": ["mariscos"], "notas": "Hipertensión. Dieta hiposódica estricta." },
-    { "id": "4752501", "nombre": "José Mendoza", "stationId": "2", "habitacion": "203", "cama": "A", "dietaId": "8", "alergias": [], "notas": "Diabetes tipo 2. Controlar azúcar." },
-    { "id": "4752502", "nombre": "Carmen Vega", "stationId": "2", "habitacion": "204", "cama": "A", "dietaId": "12", "alergias": ["lactosa", "soja"], "notas": "Insuficiencia renal. Restricción de potasio y fósforo." },
-    { "id": "4752503", "nombre": "Luis Herrera", "stationId": "3", "habitacion": "303", "cama": "A", "dietaId": "13", "alergias": ["picantes"], "notas": "Gastritis erosiva. Evitar irritantes." },
-    { "id": "4752504", "nombre": "Marta Jiménez", "stationId": "4", "habitacion": "401", "cama": "A", "dietaId": "2", "alergias": ["penicilina"], "notas": "Post colecistectomía. Evolución favorable." },
-    { "id": "4752505", "nombre": "Fernando Ruiz", "stationId": "4", "habitacion": "402", "cama": "A", "dietaId": "5", "alergias": [], "notas": "Post operatorio. Inicio de líquidos." },
-    { "id": "4752506", "nombre": "Gabriela Díaz", "stationId": "4", "habitacion": "403", "cama": "B", "dietaId": "11", "alergias": ["huevo"], "notas": "Post quirúrgico maxilofacial. Dieta líquida/papilla." },
-    { "id": "4752507", "nombre": "Ricardo Navarro", "stationId": "4", "habitacion": "404", "cama": "A", "dietaId": "1", "alergias": [], "notas": "Hernia hiatal. Comidas pequeñas y frecuentes." },
-    { "id": "4752508", "nombre": "Elena Castillo", "stationId": "5", "habitacion": "501", "cama": "A", "dietaId": "2", "alergias": ["mani"], "notas": "Paciente pediátrico. 10 años." },
-    { "id": "4752509", "nombre": "Santiago Mora", "stationId": "5", "habitacion": "502", "cama": "A", "dietaId": "8", "alergias": [], "notas": "Diabetes juvenil. Menú adaptado." },
-    { "id": "4752510", "nombre": "Valentina Cruz", "stationId": "5", "habitacion": "503", "cama": "A", "dietaId": "1", "alergias": ["lactosa"], "notas": "Gastroenteritis. Hidratación vigilada." },
-    { "id": "4752511", "nombre": "Andrés Vargas", "stationId": "5", "habitacion": "504", "cama": "B", "dietaId": "13", "alergias": ["frutillas"], "notas": "Reflujo gastroesofágico. Dieta antiácida." },
-    { "id": "4752512", "nombre": "Paola Núñez", "stationId": "5", "habitacion": "505", "cama": "A", "dietaId": "4", "alergias": [], "notas": "Paciente pediátrico. Cardiopatía. Dieta hiposódica." }
+    {
+      "id": "4752493",
+      "nombre": "Rosa Martinez",
+      "stationId": "1",
+      "habitacion": "301",
+      "cama": "A",
+      "dietaId": "1",
+      "alergias": [
+        "Maní"
+      ],
+      "notas": ""
+    },
+    {
+      "id": "4752494",
+      "nombre": "Pedro Gomez",
+      "stationId": "1",
+      "habitacion": "301",
+      "cama": "B",
+      "dietaId": "2",
+      "alergias": [],
+      "notas": "Paciente con movilidad reducida"
+    },
+    {
+      "id": "4752495",
+      "nombre": "Juan Perez",
+      "stationId": "1",
+      "habitacion": "302",
+      "cama": "A",
+      "dietaId": "1",
+      "alergias": [],
+      "notas": ""
+    },
+    {
+      "id": "4752496",
+      "nombre": "Maria Lopez",
+      "stationId": "1",
+      "habitacion": "302",
+      "cama": "B",
+      "dietaId": "4",
+      "alergias": [
+        "Lactosa"
+      ],
+      "notas": "Postquirúrgico"
+    },
+    {
+      "id": "4752497",
+      "nombre": "Jose Ramirez",
+      "stationId": "1",
+      "habitacion": "303",
+      "cama": "A",
+      "dietaId": "6",
+      "alergias": [
+        "Gluten",
+        "Trigo"
+      ],
+      "notas": "Enfermedad celíaca"
+    },
+    {
+      "id": "4752498",
+      "nombre": "Ana Torres",
+      "stationId": "2",
+      "habitacion": "501",
+      "cama": "A",
+      "dietaId": "3",
+      "alergias": [],
+      "notas": "Preoperatorio"
+    },
+    {
+      "id": "4752499",
+      "nombre": "Luis Castro",
+      "stationId": "2",
+      "habitacion": "501",
+      "cama": "B",
+      "dietaId": "5",
+      "alergias": [],
+      "notas": "Control de peso"
+    },
+    {
+      "id": "4752500",
+      "nombre": "Carmen Diaz",
+      "stationId": "2",
+      "habitacion": "502",
+      "cama": "A",
+      "dietaId": "2",
+      "alergias": [
+        "Mariscos"
+      ],
+      "notas": "Diabética tipo 2"
+    },
+    {
+      "id": "4752501",
+      "nombre": "Diego Ruiz",
+      "stationId": "2",
+      "habitacion": "502",
+      "cama": "B",
+      "dietaId": "1",
+      "alergias": [],
+      "notas": ""
+    },
+    {
+      "id": "4752502",
+      "nombre": "Sofia Herrera",
+      "stationId": "2",
+      "habitacion": "503",
+      "cama": "A",
+      "dietaId": "9",
+      "alergias": [],
+      "notas": ""
+    },
+    {
+      "id": "4752503",
+      "nombre": "Miguel Angel",
+      "stationId": "3",
+      "habitacion": "UTI-1",
+      "cama": "A",
+      "dietaId": "3",
+      "alergias": [],
+      "notas": "Monitoreo constante - NPO hasta nuevo aviso"
+    },
+    {
+      "id": "4752504",
+      "nombre": "Elena Vargas",
+      "stationId": "3",
+      "habitacion": "UTI-1",
+      "cama": "B",
+      "dietaId": "7",
+      "alergias": [
+        "Potasio"
+      ],
+      "notas": "Hemodiálisis"
+    },
+    {
+      "id": "4752505",
+      "nombre": "Pablo Morales",
+      "stationId": "3",
+      "habitacion": "UTI-2",
+      "cama": "A",
+      "dietaId": "4",
+      "alergias": [],
+      "notas": "Postoperatorio inmediato"
+    },
+    {
+      "id": "4752506",
+      "nombre": "Laura Navarro",
+      "stationId": "3",
+      "habitacion": "UTI-2",
+      "cama": "B",
+      "dietaId": "8",
+      "alergias": [],
+      "notas": "Desnutrición severa"
+    },
+    {
+      "id": "4752507",
+      "nombre": "Daniel Rivas",
+      "stationId": "4",
+      "habitacion": "401",
+      "cama": "A",
+      "dietaId": "4",
+      "alergias": [],
+      "notas": "Post-operatorio amígdalas"
+    },
+    {
+      "id": "4752508",
+      "nombre": "Valentina Cruz",
+      "stationId": "4",
+      "habitacion": "401",
+      "cama": "B",
+      "dietaId": "9",
+      "alergias": [
+        "Lactosa"
+      ],
+      "notas": "Control pediátrico"
+    },
+    {
+      "id": "4752509",
+      "nombre": "Samuel Gutierrez",
+      "stationId": "4",
+      "habitacion": "402",
+      "cama": "A",
+      "dietaId": "6",
+      "alergias": [
+        "Gluten"
+      ],
+      "notas": "Recién diagnosticado celíaco"
+    },
+    {
+      "id": "4752510",
+      "nombre": "Isabella Torres",
+      "stationId": "4",
+      "habitacion": "402",
+      "cama": "B",
+      "dietaId": "1",
+      "alergias": [
+        "Maní",
+        "Lactosa"
+      ],
+      "notas": "Alergias múltiples"
+    },
+    {
+      "id": "4752511",
+      "nombre": "Gabriela Flores",
+      "stationId": "5",
+      "habitacion": "601",
+      "cama": "A",
+      "dietaId": "9",
+      "alergias": [],
+      "notas": "Lactancia - dieta reforzada"
+    },
+    {
+      "id": "4752512",
+      "nombre": "Fernanda Silva",
+      "stationId": "5",
+      "habitacion": "601",
+      "cama": "B",
+      "dietaId": "8",
+      "alergias": [],
+      "notas": "Desnutrición gestacional"
+    }
   ],
   "comidas": [
-    { "id": "1", "dietaId": "2", "nombre": "Arroz Aguado", "tiempo": "A", "subcomidas": [{ "nombre": "Arroz con pollo", "descripcion": "Arroz cocido con pollo desmenuzado", "ingredientes": [{ "nombre": "Arroz", "descripcion": "Arroz blanco" }, { "nombre": "Pollo", "descripcion": "Pechuga de pollo" }, { "nombre": "Verduras", "descripcion": "Zanahoria y apio" }] }] },
-    { "id": "2", "dietaId": "2", "nombre": "Sopa de Pollo", "tiempo": "A", "subcomidas": [{ "nombre": "Sopa", "descripcion": "Sopa de pollo con fideos", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pechuga de pollo" }, { "nombre": "Fideos", "descripcion": "Fideos de sémola" }, { "nombre": "Verduras", "descripcion": "Zanahoria y apio" }] }] },
-    { "id": "3", "dietaId": "2", "nombre": "Pollo asado", "tiempo": "A", "subcomidas": [{ "nombre": "Pollo asado", "descripcion": "Pollo al horno con guarnición", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Muslo de pollo" }, { "nombre": "Papas", "descripcion": "Papas al horno" }, { "nombre": "Ensalada", "descripcion": "Lechuga y tomate" }] }] },
-    { "id": "4", "dietaId": "2", "nombre": "Cereal con leche", "tiempo": "D", "subcomidas": [{ "nombre": "Cereal", "descripcion": "Cereal de trigo con leche", "ingredientes": [{ "nombre": "Cereal", "descripcion": "Cereal de trigo" }, { "nombre": "Leche", "descripcion": "Leche entera" }] }] },
-    { "id": "5", "dietaId": "2", "nombre": "Panqueque", "tiempo": "D", "subcomidas": [{ "nombre": "Panqueque", "descripcion": "Panqueque con miel", "ingredientes": [{ "nombre": "Harina", "descripcion": "Harina de trigo" }, { "nombre": "Huevo", "descripcion": "Huevo fresco" }, { "nombre": "Miel", "descripcion": "Miel de abeja" }] }] },
-    { "id": "6", "dietaId": "2", "nombre": "Merengada de banana", "tiempo": "M", "subcomidas": [{ "nombre": "Merengada", "descripcion": "Licuado de banana con leche", "ingredientes": [{ "nombre": "Banana", "descripcion": "Banana madura" }, { "nombre": "Leche", "descripcion": "Leche entera" }, { "nombre": "Azúcar", "descripcion": "Azúcar blanca" }] }] },
-    { "id": "7", "dietaId": "2", "nombre": "Galletas con queso", "tiempo": "M", "subcomidas": [{ "nombre": "Galletas", "descripcion": "Galletas de agua con queso crema", "ingredientes": [{ "nombre": "Galletas", "descripcion": "Galletas de agua" }, { "nombre": "Queso crema", "descripcion": "Queso crema pasteurizado" }] }] },
-    { "id": "8", "dietaId": "2", "nombre": "Pescado al vapor", "tiempo": "C", "subcomidas": [{ "nombre": "Pescado", "descripcion": "Merluza al vapor con verduras", "ingredientes": [{ "nombre": "Merluza", "descripcion": "Filete de merluza" }, { "nombre": "Brócoli", "descripcion": "Brócoli al vapor" }, { "nombre": "Arroz", "descripcion": "Arroz blanco" }] }] },
-    { "id": "9", "dietaId": "2", "nombre": "Té con tostadas", "tiempo": "C", "subcomidas": [{ "nombre": "Cena ligera", "descripcion": "Té de hierbas con tostadas de pan integral", "ingredientes": [{ "nombre": "Té", "descripcion": "Té de manzanilla" }, { "nombre": "Pan integral", "descripcion": "Pan integral tostado" }, { "nombre": "Mermelada", "descripcion": "Mermelada de frutas" }] }] },
-    { "id": "10", "dietaId": "1", "nombre": "Arroz Aguado", "tiempo": "A", "subcomidas": [{ "nombre": "Arroz aguado", "descripcion": "Arroz de textura suave bien cocido", "ingredientes": [{ "nombre": "Arroz", "descripcion": "Arroz blanco bien cocido" }, { "nombre": "Pollo", "descripcion": "Pollo desmenuzado" }, { "nombre": "Zanahoria", "descripcion": "Zanahoria cocida" }] }] },
-    { "id": "11", "dietaId": "1", "nombre": "Puré de calabaza", "tiempo": "A", "subcomidas": [{ "nombre": "Puré", "descripcion": "Puré de calabaza con pollo", "ingredientes": [{ "nombre": "Calabaza", "descripcion": "Calabaza cocida" }, { "nombre": "Pollo", "descripcion": "Pollo desmenuzado fino" }] }] },
-    { "id": "12", "dietaId": "1", "nombre": "Papilla de manzana", "tiempo": "D", "subcomidas": [{ "nombre": "Papilla", "descripcion": "Compota de manzana sin azúcar", "ingredientes": [{ "nombre": "Manzana", "descripcion": "Manzana roja cocida" }, { "nombre": "Canela", "descripcion": "Canela en polvo" }] }] },
-    { "id": "13", "dietaId": "1", "nombre": "Sopa de verduras", "tiempo": "C", "subcomidas": [{ "nombre": "Sopa", "descripcion": "Sopa de verduras licuada", "ingredientes": [{ "nombre": "Zanahoria", "descripcion": "Zanahoria cocida" }, { "nombre": "Calabacín", "descripcion": "Calabacín cocido" }, { "nombre": "Papa", "descripcion": "Papa cocida" }] }] },
-    { "id": "14", "dietaId": "8", "nombre": "Avena cocida", "tiempo": "D", "subcomidas": [{ "nombre": "Avena", "descripcion": "Avena cocida sin azúcar", "ingredientes": [{ "nombre": "Avena", "descripcion": "Avena integral" }, { "nombre": "Agua", "descripcion": "Agua" }, { "nombre": "Canela", "descripcion": "Canela en polvo" }] }] },
-    { "id": "15", "dietaId": "8", "nombre": "Pollo asado", "tiempo": "A", "subcomidas": [{ "nombre": "Pollo", "descripcion": "Pollo asado sin salsas", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pechuga de pollo" }, { "nombre": "Verduras", "descripcion": "Verduras al vapor" }] }] },
-    { "id": "16", "dietaId": "8", "nombre": "Pescado a la plancha", "tiempo": "A", "subcomidas": [{ "nombre": "Pescado", "descripcion": "Pescado blanco a la plancha", "ingredientes": [{ "nombre": "Merluza", "descripcion": "Filete de merluza" }, { "nombre": "Ensalada", "descripcion": "Lechuga, tomate y pepino" }, { "nombre": "Arroz", "descripcion": "Arroz integral" }] }] },
-    { "id": "17", "dietaId": "8", "nombre": "Gelatina sin azúcar", "tiempo": "C", "subcomidas": [{ "nombre": "Gelatina", "descripcion": "Gelatina de frutas sin azúcar", "ingredientes": [{ "nombre": "Gelatina", "descripcion": "Gelatina dietética" }, { "nombre": "Agua", "descripcion": "Agua" }] }] },
-    { "id": "18", "dietaId": "4", "nombre": "Milanesa al horno", "tiempo": "A", "subcomidas": [{ "nombre": "Milanesa", "descripcion": "Milanesa de pollo al horno sin sal", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pechuga de pollo" }, { "nombre": "Pan rallado", "descripcion": "Pan rallado sin sal" }, { "nombre": "Puré", "descripcion": "Puré de papas sin sal" }] }] },
-    { "id": "19", "dietaId": "4", "nombre": "Caldo de verduras", "tiempo": "C", "subcomidas": [{ "nombre": "Caldo", "descripcion": "Caldo de verduras sin sal", "ingredientes": [{ "nombre": "Zanahoria", "descripcion": "Zanahoria" }, { "nombre": "Apio", "descripcion": "Apio" }, { "nombre": "Puerro", "descripcion": "Puerro" }] }] },
-    { "id": "20", "dietaId": "5", "nombre": "Agua de coco", "tiempo": "D", "subcomidas": [{ "nombre": "Hidratación", "descripcion": "Agua de coco natural", "ingredientes": [{ "nombre": "Agua de coco", "descripcion": "Agua de coco natural" }] }] },
-    { "id": "21", "dietaId": "5", "nombre": "Caldo de pollo", "tiempo": "A", "subcomidas": [{ "nombre": "Caldo", "descripcion": "Caldo de pollo colado", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pollo" }, { "nombre": "Agua", "descripcion": "Agua" }, { "nombre": "Verduras", "descripcion": "Zanahoria y apio" }] }] },
-    { "id": "22", "dietaId": "5", "nombre": "Jugo de frutas colado", "tiempo": "M", "subcomidas": [{ "nombre": "Jugo", "descripcion": "Jugo de frutas natural colado", "ingredientes": [{ "nombre": "Manzana", "descripcion": "Manzana" }, { "nombre": "Agua", "descripcion": "Agua" }] }] },
-    { "id": "23", "dietaId": "11", "nombre": "Papilla de pollo", "tiempo": "A", "subcomidas": [{ "nombre": "Papilla", "descripcion": "Papilla de pollo con papa", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pollo cocido procesado" }, { "nombre": "Papa", "descripcion": "Papa cocida" }, { "nombre": "Caldo", "descripcion": "Caldo de verduras" }] }] },
-    { "id": "24", "dietaId": "11", "nombre": "Compota de pera", "tiempo": "M", "subcomidas": [{ "nombre": "Compota", "descripcion": "Compota de pera triturada", "ingredientes": [{ "nombre": "Pera", "descripcion": "Pera madura cocida" }] }] },
-    { "id": "25", "dietaId": "12", "nombre": "Arroz con vegetales", "tiempo": "A", "subcomidas": [{ "nombre": "Arroz", "descripcion": "Arroz blanco con vegetales bajos en potasio", "ingredientes": [{ "nombre": "Arroz", "descripcion": "Arroz blanco" }, { "nombre": "Zanahoria", "descripcion": "Zanahoria cocida" }, { "nombre": "Calabacín", "descripcion": "Calabacín cocido" }] }] },
-    { "id": "26", "dietaId": "12", "nombre": "Claras de huevo", "tiempo": "D", "subcomidas": [{ "nombre": "Claras", "descripcion": "Claras de huevo revueltas", "ingredientes": [{ "nombre": "Clara de huevo", "descripcion": "Claras de huevo pasteurizadas" }] }] },
-    { "id": "27", "dietaId": "13", "nombre": "Sopa de arroz", "tiempo": "A", "subcomidas": [{ "nombre": "Sopa de arroz", "descripcion": "Sopa de arroz con pollo suave", "ingredientes": [{ "nombre": "Arroz", "descripcion": "Arroz blanco" }, { "nombre": "Pollo", "descripcion": "Pollo desmenuzado" }, { "nombre": "Caldo", "descripcion": "Caldo de pollo sin condimentos" }] }] },
-    { "id": "28", "dietaId": "13", "nombre": "Manzana rallada", "tiempo": "M", "subcomidas": [{ "nombre": "Manzana", "descripcion": "Manzana rallada sin cáscara", "ingredientes": [{ "nombre": "Manzana", "descripcion": "Manzana verde rallada" }] }] },
-    { "id": "29", "dietaId": "13", "nombre": "Pollo hervido", "tiempo": "C", "subcomidas": [{ "nombre": "Pollo", "descripcion": "Pechuga de pollo hervida sin piel", "ingredientes": [{ "nombre": "Pollo", "descripcion": "Pechuga de pollo" }, { "nombre": "Papa", "descripcion": "Papa cocida" }] }] },
-    { "id": "30", "dietaId": "4", "nombre": "Fruta fresca", "tiempo": "D", "subcomidas": [{ "nombre": "Fruta", "descripcion": "Fruta fresca de estación", "ingredientes": [{ "nombre": "Papaya", "descripcion": "Papaya en trozos" }, { "nombre": "Manzana", "descripcion": "Manzana roja" }] }] },
-    { "id": "31", "dietaId": "8", "nombre": "Ensalada de atún", "tiempo": "C", "subcomidas": [{ "nombre": "Ensalada", "descripcion": "Ensalada de atún al natural con verduras", "ingredientes": [{ "nombre": "Atún", "descripcion": "Atún al natural" }, { "nombre": "Lechuga", "descripcion": "Lechuga" }, { "nombre": "Tomate", "descripcion": "Tomate perita" }, { "nombre": "Aceite de oliva", "descripcion": "Aceite de oliva virgen extra" }] }] },
-    { "id": "32", "dietaId": "5", "nombre": "Gelatina ligera", "tiempo": "C", "subcomidas": [{ "nombre": "Gelatina", "descripcion": "Gelatina de frutas", "ingredientes": [{ "nombre": "Gelatina", "descripcion": "Gelatina de frutas" }, { "nombre": "Agua", "descripcion": "Agua" }] }] }
+    {
+      "id": "101",
+      "dietaId": "1",
+      "nombre": "Caldo de pollo",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "101a",
+          "nombre": "Caldo",
+          "descripcion": "Caldo de pollo desgrasado",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pollo"
+            },
+            {
+              "id": "2",
+              "nombre": "Zanahoria"
+            },
+            {
+              "id": "3",
+              "nombre": "Apio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "102",
+      "dietaId": "1",
+      "nombre": "Pollo al horno",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "102a",
+          "nombre": "Pechuga de pollo",
+          "descripcion": "Pechuga a la plancha sin sal",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pechuga de pollo"
+            },
+            {
+              "id": "2",
+              "nombre": "Aceite de oliva"
+            }
+          ]
+        },
+        {
+          "id": "102b",
+          "nombre": "Puré de papas",
+          "descripcion": "Puré de papas sin sal",
+          "ingredientes": [
+            {
+              "id": "4",
+              "nombre": "Papa"
+            },
+            {
+              "id": "5",
+              "nombre": "Leche descremada"
+            }
+          ]
+        },
+        {
+          "id": "102c",
+          "nombre": "Ensalada verde",
+          "descripcion": "Lechuga, tomate y pepino",
+          "ingredientes": [
+            {
+              "id": "6",
+              "nombre": "Lechuga"
+            },
+            {
+              "id": "7",
+              "nombre": "Tomate"
+            },
+            {
+              "id": "8",
+              "nombre": "Pepino"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "103",
+      "dietaId": "1",
+      "nombre": "Manzana asada",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "103a",
+          "nombre": "Manzana",
+          "descripcion": "Manzana asada con canela",
+          "ingredientes": [
+            {
+              "id": "9",
+              "nombre": "Manzana"
+            },
+            {
+              "id": "10",
+              "nombre": "Canela"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "104",
+      "dietaId": "1",
+      "nombre": "Pescado al vapor",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "104a",
+          "nombre": "Filete de pescado",
+          "descripcion": "Pescado blanco al vapor",
+          "ingredientes": [
+            {
+              "id": "11",
+              "nombre": "Filete de merluza"
+            },
+            {
+              "id": "12",
+              "nombre": "Limón"
+            }
+          ]
+        },
+        {
+          "id": "104b",
+          "nombre": "Vegetales salteados",
+          "descripcion": "Zucchini y berenjena",
+          "ingredientes": [
+            {
+              "id": "13",
+              "nombre": "Zucchini"
+            },
+            {
+              "id": "14",
+              "nombre": "Berenjena"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "201",
+      "dietaId": "2",
+      "nombre": "Avena con canela",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "201a",
+          "nombre": "Avena",
+          "descripcion": "Avena sin azúcar con canela",
+          "ingredientes": [
+            {
+              "id": "15",
+              "nombre": "Avena integral"
+            },
+            {
+              "id": "10",
+              "nombre": "Canela"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "202",
+      "dietaId": "2",
+      "nombre": "Pechuga grillé",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "202a",
+          "nombre": "Pechuga",
+          "descripcion": "Pechuga de pollo grillé",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pechuga de pollo"
+            },
+            {
+              "id": "12",
+              "nombre": "Limón"
+            }
+          ]
+        },
+        {
+          "id": "202b",
+          "nombre": "Ensalada de quinoa",
+          "descripcion": "Quinoa con vegetales",
+          "ingredientes": [
+            {
+              "id": "16",
+              "nombre": "Quinoa"
+            },
+            {
+              "id": "7",
+              "nombre": "Tomate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "203",
+      "dietaId": "2",
+      "nombre": "Yogur natural",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "203a",
+          "nombre": "Yogur",
+          "descripcion": "Yogur natural sin azúcar",
+          "ingredientes": [
+            {
+              "id": "17",
+              "nombre": "Yogur natural"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "204",
+      "dietaId": "2",
+      "nombre": "Tortilla de claras",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "204a",
+          "nombre": "Tortilla",
+          "descripcion": "Tortilla de claras con espinaca",
+          "ingredientes": [
+            {
+              "id": "18",
+              "nombre": "Claras de huevo"
+            },
+            {
+              "id": "19",
+              "nombre": "Espinaca"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "301",
+      "dietaId": "3",
+      "nombre": "Agua",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "301a",
+          "nombre": "Agua",
+          "descripcion": "Agua mineral",
+          "ingredientes": [
+            {
+              "id": "20",
+              "nombre": "Agua"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "302",
+      "dietaId": "3",
+      "nombre": "Caldo claro",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "302a",
+          "nombre": "Caldo",
+          "descripcion": "Caldo de verduras colado",
+          "ingredientes": [
+            {
+              "id": "2",
+              "nombre": "Zanahoria"
+            },
+            {
+              "id": "3",
+              "nombre": "Apio"
+            },
+            {
+              "id": "21",
+              "nombre": "Cebolla"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "303",
+      "dietaId": "3",
+      "nombre": "Gelatina",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "303a",
+          "nombre": "Gelatina",
+          "descripcion": "Gelatina de fruta",
+          "ingredientes": [
+            {
+              "id": "22",
+              "nombre": "Gelatina sin azúcar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401",
+      "dietaId": "4",
+      "nombre": "Papilla de fruta",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "401a",
+          "nombre": "Papilla",
+          "descripcion": "Puré de manzana y pera",
+          "ingredientes": [
+            {
+              "id": "9",
+              "nombre": "Manzana"
+            },
+            {
+              "id": "23",
+              "nombre": "Pera"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "402",
+      "dietaId": "4",
+      "nombre": "Puré de verduras",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "402a",
+          "nombre": "Puré",
+          "descripcion": "Puré de calabaza y papa",
+          "ingredientes": [
+            {
+              "id": "24",
+              "nombre": "Calabaza"
+            },
+            {
+              "id": "4",
+              "nombre": "Papa"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "403",
+      "dietaId": "4",
+      "nombre": "Compota",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "403a",
+          "nombre": "Compota",
+          "descripcion": "Compota de durazno",
+          "ingredientes": [
+            {
+              "id": "25",
+              "nombre": "Durazno"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "404",
+      "dietaId": "4",
+      "nombre": "Sopa crema",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "404a",
+          "nombre": "Sopa",
+          "descripcion": "Crema de zapallo",
+          "ingredientes": [
+            {
+              "id": "24",
+              "nombre": "Calabaza"
+            },
+            {
+              "id": "21",
+              "nombre": "Cebolla"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "501",
+      "dietaId": "5",
+      "nombre": "Té verde",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "501a",
+          "nombre": "Té",
+          "descripcion": "Té verde sin azúcar",
+          "ingredientes": [
+            {
+              "id": "26",
+              "nombre": "Té verde"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "502",
+      "dietaId": "5",
+      "nombre": "Ensalada de atún",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "502a",
+          "nombre": "Ensalada",
+          "descripcion": "Atún con lechuga y tomate",
+          "ingredientes": [
+            {
+              "id": "27",
+              "nombre": "Atún"
+            },
+            {
+              "id": "6",
+              "nombre": "Lechuga"
+            },
+            {
+              "id": "7",
+              "nombre": "Tomate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "503",
+      "dietaId": "5",
+      "nombre": "Caldo de verduras",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "503a",
+          "nombre": "Caldo",
+          "descripcion": "Caldo de verduras light",
+          "ingredientes": [
+            {
+              "id": "2",
+              "nombre": "Zanahoria"
+            },
+            {
+              "id": "3",
+              "nombre": "Apio"
+            },
+            {
+              "id": "21",
+              "nombre": "Cebolla"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "601",
+      "dietaId": "6",
+      "nombre": "Pan sin gluten",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "601a",
+          "nombre": "Pan",
+          "descripcion": "Pan de arroz con mermelada",
+          "ingredientes": [
+            {
+              "id": "28",
+              "nombre": "Harina de arroz"
+            },
+            {
+              "id": "29",
+              "nombre": "Mermelada sin TACC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "602",
+      "dietaId": "6",
+      "nombre": "Pollo grillé",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "602a",
+          "nombre": "Pollo",
+          "descripcion": "Pollo grillé con ensalada",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pechuga de pollo"
+            },
+            {
+              "id": "6",
+              "nombre": "Lechuga"
+            },
+            {
+              "id": "7",
+              "nombre": "Tomate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "603",
+      "dietaId": "6",
+      "nombre": "Fruta fresca",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "603a",
+          "nombre": "Fruta",
+          "descripcion": "Frutas de estación",
+          "ingredientes": [
+            {
+              "id": "9",
+              "nombre": "Manzana"
+            },
+            {
+              "id": "30",
+              "nombre": "Banana"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "604",
+      "dietaId": "6",
+      "nombre": "Pescado grillé",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "604a",
+          "nombre": "Pescado",
+          "descripcion": "Pescado a la parrilla",
+          "ingredientes": [
+            {
+              "id": "11",
+              "nombre": "Filete de merluza"
+            },
+            {
+              "id": "12",
+              "nombre": "Limón"
+            }
+          ]
+        },
+        {
+          "id": "604b",
+          "nombre": "Puré de batata",
+          "descripcion": "Puré de batata",
+          "ingredientes": [
+            {
+              "id": "31",
+              "nombre": "Batata"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "701",
+      "dietaId": "7",
+      "nombre": "Infusión",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "701a",
+          "nombre": "Té de hierbas",
+          "descripcion": "Té de manzanilla sin azúcar",
+          "ingredientes": [
+            {
+              "id": "32",
+              "nombre": "Manzanilla"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "702",
+      "dietaId": "7",
+      "nombre": "Pollo hervido",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "702a",
+          "nombre": "Pollo",
+          "descripcion": "Pollo hervido sin sal",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pechuga de pollo"
+            }
+          ]
+        },
+        {
+          "id": "702b",
+          "nombre": "Arroz blanco",
+          "descripcion": "Arroz blanco sin sal",
+          "ingredientes": [
+            {
+              "id": "33",
+              "nombre": "Arroz"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "703",
+      "dietaId": "7",
+      "nombre": "Puré de calabaza",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "703a",
+          "nombre": "Puré",
+          "descripcion": "Puré de calabaza sin sal",
+          "ingredientes": [
+            {
+              "id": "24",
+              "nombre": "Calabaza"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "801",
+      "dietaId": "8",
+      "nombre": "Huevos revueltos",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "801a",
+          "nombre": "Huevos",
+          "descripcion": "Huevos revueltos con queso",
+          "ingredientes": [
+            {
+              "id": "34",
+              "nombre": "Huevo"
+            },
+            {
+              "id": "35",
+              "nombre": "Queso"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "802",
+      "dietaId": "8",
+      "nombre": "Carne roja",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "802a",
+          "nombre": "Bife",
+          "descripcion": "Bife de chorizo a la parrilla",
+          "ingredientes": [
+            {
+              "id": "36",
+              "nombre": "Bife de chorizo"
+            }
+          ]
+        },
+        {
+          "id": "802b",
+          "nombre": "Puré de papas",
+          "descripcion": "Puré de papas con manteca",
+          "ingredientes": [
+            {
+              "id": "4",
+              "nombre": "Papa"
+            },
+            {
+              "id": "37",
+              "nombre": "Manteca"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "803",
+      "dietaId": "8",
+      "nombre": "Sándwich",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "803a",
+          "nombre": "Sándwich",
+          "descripcion": "Sándwich de jamón y queso",
+          "ingredientes": [
+            {
+              "id": "38",
+              "nombre": "Pan"
+            },
+            {
+              "id": "39",
+              "nombre": "Jamón"
+            },
+            {
+              "id": "35",
+              "nombre": "Queso"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "804",
+      "dietaId": "8",
+      "nombre": "Pastel de papa",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "804a",
+          "nombre": "Pastel",
+          "descripcion": "Pastel de papa con carne",
+          "ingredientes": [
+            {
+              "id": "4",
+              "nombre": "Papa"
+            },
+            {
+              "id": "40",
+              "nombre": "Carne picada"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "901",
+      "dietaId": "9",
+      "nombre": "Cereal con leche",
+      "tiempo": "desayuno",
+      "subcomidas": [
+        {
+          "id": "901a",
+          "nombre": "Cereal",
+          "descripcion": "Cereal con leche y fruta",
+          "ingredientes": [
+            {
+              "id": "41",
+              "nombre": "Cereal"
+            },
+            {
+              "id": "5",
+              "nombre": "Leche"
+            },
+            {
+              "id": "30",
+              "nombre": "Banana"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "902",
+      "dietaId": "9",
+      "nombre": "Milanesa con puré",
+      "tiempo": "almuerzo",
+      "subcomidas": [
+        {
+          "id": "902a",
+          "nombre": "Milanesa",
+          "descripcion": "Milanesa de pollo",
+          "ingredientes": [
+            {
+              "id": "1",
+              "nombre": "Pechuga de pollo"
+            },
+            {
+              "id": "42",
+              "nombre": "Pan rallado"
+            }
+          ]
+        },
+        {
+          "id": "902b",
+          "nombre": "Puré",
+          "descripcion": "Puré de papas cremoso",
+          "ingredientes": [
+            {
+              "id": "4",
+              "nombre": "Papa"
+            },
+            {
+              "id": "37",
+              "nombre": "Manteca"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "903",
+      "dietaId": "9",
+      "nombre": "Fruta con yogur",
+      "tiempo": "merienda",
+      "subcomidas": [
+        {
+          "id": "903a",
+          "nombre": "Yogur con fruta",
+          "descripcion": "Yogur natural con frutas picadas",
+          "ingredientes": [
+            {
+              "id": "17",
+              "nombre": "Yogur natural"
+            },
+            {
+              "id": "9",
+              "nombre": "Manzana"
+            },
+            {
+              "id": "30",
+              "nombre": "Banana"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "904",
+      "dietaId": "9",
+      "nombre": "Tortilla de papa",
+      "tiempo": "cena",
+      "subcomidas": [
+        {
+          "id": "904a",
+          "nombre": "Tortilla",
+          "descripcion": "Tortilla de papa con cebolla",
+          "ingredientes": [
+            {
+              "id": "4",
+              "nombre": "Papa"
+            },
+            {
+              "id": "21",
+              "nombre": "Cebolla"
+            },
+            {
+              "id": "34",
+              "nombre": "Huevo"
+            }
+          ]
+        }
+      ]
+    }
   ],
   "pedidos": [
     {
       "id": "1001",
       "items": [
-        { "id": "i1", "comidaId": "4", "comidaNombre": "Cereal con leche", "pacienteId": "4752495", "pacienteNombre": "Carlos Rodríguez", "flagHoy": true, "nota": "Usar leche sin lactosa" },
-        { "id": "i2", "comidaId": "1", "comidaNombre": "Arroz Aguado", "pacienteId": "4752496", "pacienteNombre": "Ana Martínez", "flagHoy": true, "nota": "" }
+        {
+          "id": "item-pl-1",
+          "comidaId": "102",
+          "comidaNombre": "Pollo al horno",
+          "pacienteId": "4752495",
+          "pacienteNombre": "Juan Perez",
+          "flagHoy": true,
+          "nota": ""
+        },
+        {
+          "id": "item-pl-2",
+          "comidaId": "103",
+          "comidaNombre": "Manzana asada",
+          "pacienteId": "4752495",
+          "pacienteNombre": "Juan Perez",
+          "flagHoy": true,
+          "nota": ""
+        }
       ],
       "pacienteId": "4752495",
-      "timestamp": "2026-06-18T08:30:00.000Z",
+      "timestamp": "2026-06-22T08:30:00.000Z",
       "status": "sent"
     },
     {
       "id": "1002",
       "items": [
-        { "id": "i3", "comidaId": "3", "comidaNombre": "Pollo asado", "pacienteId": "4752495", "pacienteNombre": "Carlos Rodríguez", "flagHoy": true, "nota": "" }
+        {
+          "id": "item-lg-1",
+          "comidaId": "101",
+          "comidaNombre": "Caldo de pollo",
+          "pacienteId": "4752495",
+          "pacienteNombre": "Juan Perez",
+          "flagHoy": false,
+          "nota": "Sin sal"
+        }
       ],
       "pacienteId": "4752495",
-      "timestamp": "2026-06-18T08:35:00.000Z",
+      "timestamp": "2026-06-22T19:15:00.000Z",
       "status": "sent"
     },
     {
       "id": "1003",
       "items": [
-        { "id": "i4", "comidaId": "5", "comidaNombre": "Panqueque", "pacienteId": "4752494", "pacienteNombre": "María García Hernández", "flagHoy": true, "nota": "Sin miel, con dulce de leche" },
-        { "id": "i5", "comidaId": "4", "comidaNombre": "Cereal con leche", "pacienteId": "4752498", "pacienteNombre": "Laura Torres", "flagHoy": true, "nota": "Usar leche de almendras" }
+        {
+          "id": "item-pg-1",
+          "comidaId": "202",
+          "comidaNombre": "Pechuga grillé",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": ""
+        },
+        {
+          "id": "item-pg-2",
+          "comidaId": "203",
+          "comidaNombre": "Yogur natural",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": ""
+        }
       ],
       "pacienteId": "4752494",
-      "timestamp": "2026-06-17T08:30:00.000Z",
-      "status": "delivered"
+      "timestamp": "2026-06-22T10:00:00.000Z",
+      "status": "en_cocina"
     },
     {
       "id": "1004",
       "items": [
-        { "id": "i6", "comidaId": "21", "comidaNombre": "Caldo de pollo", "pacienteId": "4752505", "pacienteNombre": "Fernando Ruiz", "flagHoy": false, "nota": "Caldo tibio, colado" }
+        {
+          "id": "item-pm-1",
+          "comidaId": "701",
+          "comidaNombre": "Infusión",
+          "pacienteId": "4752505",
+          "pacienteNombre": "Pablo Morales",
+          "flagHoy": true,
+          "nota": "Que no esté muy caliente"
+        }
       ],
       "pacienteId": "4752505",
-      "timestamp": "2026-06-18T07:00:00.000Z",
+      "timestamp": "2026-06-23T07:00:00.000Z",
       "status": "sent"
     },
     {
       "id": "1005",
       "items": [
-        { "id": "i7", "comidaId": "15", "comidaNombre": "Pollo asado", "pacienteId": "4752501", "pacienteNombre": "José Mendoza", "flagHoy": true, "nota": "Sin sal. Acompañar con verduras al vapor." },
-        { "id": "i8", "comidaId": "16", "comidaNombre": "Pescado a la plancha", "pacienteId": "4752509", "pacienteNombre": "Santiago Mora", "flagHoy": true, "nota": "Porción infantil." },
-        { "id": "i9", "comidaId": "10", "comidaNombre": "Arroz Aguado", "pacienteId": "4752499", "pacienteNombre": "Roberto Flores", "flagHoy": true, "nota": "Textura papilla, bien procesado" }
+        {
+          "id": "item-dr-1",
+          "comidaId": "101",
+          "comidaNombre": "Caldo de pollo",
+          "pacienteId": "4752501",
+          "pacienteNombre": "Diego Ruiz",
+          "flagHoy": true,
+          "nota": "Quiere el mismo caldito de ayer"
+        },
+        {
+          "id": "item-dr-2",
+          "comidaId": "102",
+          "comidaNombre": "Pollo al horno",
+          "pacienteId": "4752501",
+          "pacienteNombre": "Diego Ruiz",
+          "flagHoy": true,
+          "nota": ""
+        },
+        {
+          "id": "item-dr-3",
+          "comidaId": "103",
+          "comidaNombre": "Manzana asada",
+          "pacienteId": "4752501",
+          "pacienteNombre": "Diego Ruiz",
+          "flagHoy": false,
+          "nota": ""
+        }
       ],
       "pacienteId": "4752501",
-      "timestamp": "2026-06-18T10:15:00.000Z",
+      "timestamp": "2026-06-22T12:30:00.000Z",
       "status": "sent"
     },
     {
       "id": "1006",
       "items": [
-        { "id": "i10", "comidaId": "18", "comidaNombre": "Milanesa al horno", "pacienteId": "4752500", "pacienteNombre": "Diana Ríos", "flagHoy": false, "nota": "Sin sal. Sin condimentos." }
+        {
+          "id": "item-cd-1",
+          "comidaId": "201",
+          "comidaNombre": "Avena con canela",
+          "pacienteId": "4752500",
+          "pacienteNombre": "Carmen Diaz",
+          "flagHoy": true,
+          "nota": "Sin azúcar"
+        }
       ],
       "pacienteId": "4752500",
-      "timestamp": "2026-06-17T12:00:00.000Z",
-      "status": "delivered"
+      "timestamp": "2026-06-22T06:45:00.000Z",
+      "status": "en_cocina"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "401",
+          "comidaNombre": "Papilla de fruta",
+          "pacienteId": "4752505",
+          "pacienteNombre": "Pablo Morales",
+          "flagHoy": true,
+          "nota": "Sin frutilla ",
+          "id": "1782240455506-3m9cj88"
+        }
+      ],
+      "pacienteId": "4752505",
+      "timestamp": "2026-06-23T18:48:10.786Z",
+      "status": "sent",
+      "id": "VXbljbUVOwA"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "403",
+          "comidaNombre": "Compota",
+          "pacienteId": "4752496",
+          "pacienteNombre": "Maria Lopez",
+          "flagHoy": true,
+          "nota": "Sin tanta azucar",
+          "id": "1782240676154-qzf09ox"
+        }
+      ],
+      "pacienteId": "4752496",
+      "timestamp": "2026-06-23T18:51:21.506Z",
+      "status": "sent",
+      "id": "Ltamglsk7qI"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "903",
+          "comidaNombre": "Fruta con yogur",
+          "pacienteId": "4752511",
+          "pacienteNombre": "Gabriela Flores",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782242881555-eqhv32x"
+        }
+      ],
+      "pacienteId": "4752511",
+      "timestamp": "2026-06-23T19:28:03.942Z",
+      "status": "sent",
+      "id": "uKgYFUl8VpM"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "802",
+          "comidaNombre": "Carne roja",
+          "pacienteId": "4752512",
+          "pacienteNombre": "Fernanda Silva",
+          "flagHoy": false,
+          "nota": "",
+          "id": "1782242937485-61dffvb"
+        }
+      ],
+      "pacienteId": "4752512",
+      "timestamp": "2026-06-23T19:29:01.109Z",
+      "status": "sent",
+      "id": "N3enAINKuZI"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "801",
+          "comidaNombre": "Huevos revueltos",
+          "pacienteId": "4752512",
+          "pacienteNombre": "Fernanda Silva",
+          "flagHoy": true,
+          "nota": ".",
+          "id": "1782242976499-cnacfw2"
+        }
+      ],
+      "pacienteId": "4752512",
+      "timestamp": "2026-06-23T19:29:38.598Z",
+      "status": "sent",
+      "id": "Ri4xRqAPH48"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "301",
+          "comidaNombre": "Agua",
+          "pacienteId": "4752498",
+          "pacienteNombre": "Ana Torres",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782253068745-b7nt79s"
+        }
+      ],
+      "pacienteId": "4752498",
+      "timestamp": "2026-06-23T22:17:55.028Z",
+      "status": "sent",
+      "id": "7UaIaDcOPeo"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "103",
+          "comidaNombre": "Manzana asada",
+          "pacienteId": "4752493",
+          "pacienteNombre": "Rosa Martinez",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782242296606-jyft1wy"
+        }
+      ],
+      "pacienteId": "4752493",
+      "timestamp": "2026-06-23T22:18:17.139Z",
+      "status": "sent",
+      "id": "HQx6a_YToDA"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "204",
+          "comidaNombre": "Tortilla de claras",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782253114992-ngvkbws"
+        },
+        {
+          "comidaId": "203",
+          "comidaNombre": "Yogur natural",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782253111743-rxlfn0x"
+        }
+      ],
+      "pacienteId": "4752494",
+      "timestamp": "2026-06-23T22:19:22.155Z",
+      "status": "sent",
+      "id": "9NptlRBWXVg"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "802",
+          "comidaNombre": "Carne roja",
+          "pacienteId": "4752512",
+          "pacienteNombre": "Fernanda Silva",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782253985364-20497ls"
+        }
+      ],
+      "pacienteId": "4752512",
+      "timestamp": "2026-06-23T22:33:08.967Z",
+      "status": "en_cocina",
+      "id": "f84jWkIXPwI"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "604",
+          "comidaNombre": "Pescado grillé",
+          "pacienteId": "4752509",
+          "pacienteNombre": "Samuel Gutierrez",
+          "flagHoy": true,
+          "nota": "",
+          "id": "1782254009375-1hehgvs"
+        }
+      ],
+      "pacienteId": "4752509",
+      "timestamp": "2026-06-23T22:33:33.426Z",
+      "status": "en_cocina",
+      "id": "32xLvL1Cjvc"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "503",
+          "comidaNombre": "Caldo de verduras",
+          "pacienteId": "4752499",
+          "pacienteNombre": "Luis Castro",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-24T21:01:31.028Z",
+          "id": "1782334891028-b9tm0z6"
+        }
+      ],
+      "pacienteId": "4752499",
+      "timestamp": "2026-06-24T21:01:32.966Z",
+      "status": "sent",
+      "id": "Vff_rDDdurM"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "901",
+          "comidaNombre": "Cereal con leche",
+          "pacienteId": "4752511",
+          "pacienteNombre": "Gabriela Flores",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-24T22:09:26.429Z",
+          "id": "1782338966429-rkkzr13"
+        }
+      ],
+      "pacienteId": "4752511",
+      "timestamp": "2026-06-24T22:09:39.690Z",
+      "status": "sent",
+      "id": "Serz-fHxcBo"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "301",
+          "comidaNombre": "Agua",
+          "pacienteId": "4752498",
+          "pacienteNombre": "Ana Torres",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-24T22:20:17.485Z",
+          "id": "1782339617485-vqtm0e1"
+        }
+      ],
+      "pacienteId": "4752498",
+      "timestamp": "2026-06-24T22:20:26.296Z",
+      "status": "sent",
+      "id": "TmWYvyuBjog"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "301",
+          "comidaNombre": "Agua",
+          "pacienteId": "4752498",
+          "pacienteNombre": "Ana Torres",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-24T22:20:17.485Z",
+          "id": "1782339617485-vqtm0e1"
+        }
+      ],
+      "pacienteId": "4752498",
+      "timestamp": "2026-06-24T22:20:26.301Z",
+      "status": "sent",
+      "id": "7-JIPt8UFnI"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "901",
+          "comidaNombre": "Cereal con leche",
+          "pacienteId": "4752508",
+          "pacienteNombre": "Valentina Cruz",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:12:12.177Z",
+          "id": "mqv4pyq9stvkij36yd"
+        }
+      ],
+      "pacienteId": "4752508",
+      "timestamp": "2026-06-26T16:12:14.140Z",
+      "status": "sent",
+      "id": "hahrkQ0Da9c"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "101",
+          "comidaNombre": "Caldo de pollo",
+          "pacienteId": "4752493",
+          "pacienteNombre": "Rosa Martinez",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:15:25.803Z",
+          "id": "mqv4u44rg4krzosqho"
+        }
+      ],
+      "pacienteId": "4752493",
+      "timestamp": "2026-06-26T16:15:27.886Z",
+      "status": "sent",
+      "id": "4PklEWGW0vo"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "101",
+          "comidaNombre": "Caldo de pollo",
+          "pacienteId": "4752493",
+          "pacienteNombre": "Rosa Martinez",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:23:02.017Z",
+          "id": "mqv53w5do8m3n6re8o"
+        }
+      ],
+      "pacienteId": "4752493",
+      "timestamp": "2026-06-26T16:23:25.469Z",
+      "status": "sent",
+      "id": "B7w8kAJ_hUs"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "202",
+          "comidaNombre": "Pechuga grillé",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:23:45.935Z",
+          "id": "mqv54u1boejg2rfl05"
+        }
+      ],
+      "pacienteId": "4752494",
+      "timestamp": "2026-06-26T16:25:56.684Z",
+      "status": "sent",
+      "id": "geLMAbm0L3c"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "201",
+          "comidaNombre": "Avena con canela",
+          "pacienteId": "4752494",
+          "pacienteNombre": "Pedro Gomez",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:26:11.630Z",
+          "id": "mqv57yget0uj0r53jo"
+        }
+      ],
+      "pacienteId": "4752494",
+      "timestamp": "2026-06-26T16:26:14.004Z",
+      "status": "sent",
+      "id": "vgNCP_u2jIs"
+    },
+    {
+      "items": [
+        {
+          "comidaId": "401",
+          "comidaNombre": "Papilla de fruta",
+          "pacienteId": "4752507",
+          "pacienteNombre": "Daniel Rivas",
+          "flagHoy": true,
+          "nota": "",
+          "createdAt": "2026-06-26T16:26:37.855Z",
+          "id": "mqv58iovcmzv1vb41q"
+        }
+      ],
+      "pacienteId": "4752507",
+      "timestamp": "2026-06-26T16:30:56.713Z",
+      "status": "sent",
+      "id": "gRFU-3-giQE"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

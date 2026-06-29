@@ -16,11 +16,17 @@
         "foregroundImage": "./assets/images/hospital_vivian_pellas.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.hvp.dietas"
+      "package": "com.hvp.dietas",
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#00000000",
+      "translucent": true
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/hospital_vivian_pellas.png"
     },
     "plugins": [
@@ -32,7 +38,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#0284c7"
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
