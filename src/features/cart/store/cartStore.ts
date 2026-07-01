@@ -1,10 +1,8 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { SQLiteStorage } from 'expo-sqlite/kv-store'
-import NetInfo from '@react-native-community/netinfo'
 import type { CartItem } from '@/src/shared/types'
 import { api } from '@/src/shared/services/api'
-import { getDb, serializeArray } from '@/src/shared/services/database'
 
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 12)
@@ -72,35 +70,12 @@ export const useCartStore = create<CartState>()(
         const patientItems = items.filter((i) => i.pacienteId === patientId)
         if (patientItems.length === 0) return { success: false, queued: false, error: 'Carrito vacío' }
 
-        const netState = await NetInfo.fetch().catch(() => ({ isConnected: false }))
-        const isOnline = process.env.EXPO_PUBLIC_FORCE_OFFLINE === 'true' ? false : (netState.isConnected ?? false)
-
-        if (isOnline) {
-          try {
-            await api.postPedido(patientItems)
-            clearByPatient(patientId)
-            return { success: true, queued: false }
-          } catch (e) {
-            return { success: false, queued: false, error: e instanceof Error ? e.message : 'Error de conexión' }
-          }
-        }
-
         try {
-          const db = await getDb()
-          const idempotencyKey = uid()
-          await db.runAsync(
-            `INSERT INTO pedidos_queue (id, items, pacienteId, pacienteNombre, timestamp, status, idempotency_key) VALUES (?, ?, ?, ?, ?, 'PENDING', ?)`,
-            uid(),
-            serializeArray(patientItems),
-            patientId,
-            patientNombre,
-            new Date().toISOString(),
-            idempotencyKey,
-          )
+          const order = await api.postPedido(patientItems)
           clearByPatient(patientId)
-          return { success: true, queued: true }
+          return { success: true, queued: order.status === 'local_pending' }
         } catch (e) {
-          return { success: false, queued: false, error: e instanceof Error ? e.message : 'Error al guardar localmente' }
+          return { success: false, queued: false, error: e instanceof Error ? e.message : 'Error de conexión' }
         }
       },
     }),

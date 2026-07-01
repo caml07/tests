@@ -4,6 +4,8 @@ import { User, LoginCredentials } from '@/src/shared/types'
 import { login as authLogin } from '@/src/features/auth/services/authService'
 import { mmkv, zustandStorage } from '@/src/shared/services/mmkvStorage'
 
+const SESSION_TOKEN_KEY = 'session-token'
+
 interface PersistedAuth {
   user: User | null
   token: string | null
@@ -34,20 +36,28 @@ export const useAuthStore = create<AuthState>()(
       login: async (cred, rememberMe = false) => {
         set({ isLoading: true, error: null })
         try {
-          const { user, token } = await authLogin(cred)
+          const result = await authLogin(cred)
+          if (__DEV__) console.log('[LOGIN-RESPONSE]', JSON.stringify(result))
+          const { strTokenTransaccion } = result
+          const usuario = cred.usuario
+
+          if (strTokenTransaccion) mmkv.set(SESSION_TOKEN_KEY, strTokenTransaccion)
+          if (usuario) mmkv.set('session-user', usuario)
 
           const existingBiometricToken = mmkv.getString('biometric-auth-token')
           if (existingBiometricToken) {
             mmkv.remove('biometric-auth-token')
           }
 
-          set({ user, token, isAuthenticated: true, isLoading: false, _shouldPersist: rememberMe })
+          set({ user: { id: usuario, nombre: usuario }, token: strTokenTransaccion, isAuthenticated: true, isLoading: false, _shouldPersist: rememberMe })
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Error de conexion'
           set({ error: msg, isLoading: false })
         }
       },
       logout: async () => {
+        mmkv.remove(SESSION_TOKEN_KEY)
+        mmkv.remove('session-user')
         mmkv.remove('biometric-auth-token')
         set({ user: null, token: null, isAuthenticated: false, _shouldPersist: false, biometricEnabled: false })
       },

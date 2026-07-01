@@ -1,7 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useRouter, usePathname } from 'expo-router'
 import Animated, {
-  useDerivedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated'
@@ -29,51 +28,38 @@ const SIDEBAR_COLLAPSED = 80
 export function Sidebar() {
   const router = useRouter()
   const pathname = usePathname()
-  const { screenWidth, isTablet } = useResponsive()
+  const { isCollapsed } = useResponsive()
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
 
-  const isCompact = screenWidth < 1024
-  const targetWidth = isCompact ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED
+  const targetWidth = isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED
 
   const animatedWidth = useAnimatedStyle(() => ({
     width: withTiming(targetWidth, { duration: 300 }),
   }))
 
-  const animatedBlur = useAnimatedStyle(() => ({
-    opacity: withTiming(1, { duration: 400 }),
-  }))
-
   const isActive = (item: NavItem) => {
     if (item.route === '/(app)/(tabs)') {
-      return pathname === '/' || pathname === '/(app)/(tabs)' || pathname.startsWith('/(app)/paciente')
+      return pathname === '/(app)/(tabs)' || pathname.startsWith('/(app)/paciente')
     }
     return pathname.startsWith(item.route)
   }
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        animatedWidth,
-        animatedBlur,
-        shadow.md,
-        { zIndex: 1, backgroundColor: colors.surface },
-      ]}
-    >
+    <Animated.View style={[styles.outerShell, animatedWidth, shadow.md]}>
       <BlurWrapper
         intensity={80}
         tint={colorScheme === 'dark' ? 'dark' : 'default'}
-        style={StyleSheet.absoluteFill}
+        style={styles.blurFill}
       >
-        <View style={{ flex: 1 }} />
+        <View style={StyleSheet.absoluteFill} />
       </BlurWrapper>
 
       <View style={styles.logoContainer}>
         <Icon
           name="building.2"
           tintColor={colors.primary}
-          size={isCompact ? 28 : 32}
+          size={isCollapsed ? 28 : 32}
         />
       </View>
 
@@ -88,7 +74,7 @@ export function Sidebar() {
               style={[
                 styles.navItem,
                 active && { backgroundColor: colors.primary + '18' },
-                isCompact && styles.navItemCompact,
+                isCollapsed && styles.navItemCompact,
               ]}
             >
               <Icon
@@ -96,7 +82,7 @@ export function Sidebar() {
                 tintColor={active ? colors.primary : colors.textTertiary}
                 size={24}
               />
-              {!isCompact && (
+              {!isCollapsed && (
                 <Text
                   style={[
                     styles.navLabel,
@@ -119,8 +105,18 @@ export function Sidebar() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerShell: {
     height: '100%',
+    zIndex: 10,
+    position: 'relative',
+  },
+  blurFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 0,
     overflow: 'hidden',
   },
   logoContainer: {

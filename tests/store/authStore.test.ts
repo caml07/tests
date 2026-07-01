@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAuthStore } from '@/src/features/auth/store/authStore'
-import { useStationStore } from '@/src/features/stations/store/stationStore'
 
 const mockAuthLogin = vi.hoisted(() => vi.fn())
 
@@ -9,19 +8,11 @@ vi.mock('@/src/features/auth/services/authService', () => ({
 }))
 
 vi.mock('react-native-mmkv', () => ({
-  MMKV: function () {
-    return {
-      set: vi.fn(),
-      getString: vi.fn(() => null),
-      delete: vi.fn(),
-    }
-  },
-}))
-
-vi.mock('@/src/features/stations/store/stationStore', () => ({
-  useStationStore: {
-    getState: vi.fn(),
-  },
+  createMMKV: () => ({
+    set: vi.fn(),
+    getString: vi.fn(() => null),
+    remove: vi.fn(),
+  }),
 }))
 
 const initialState = {
@@ -36,43 +27,26 @@ beforeEach(async () => {
   vi.clearAllMocks()
   useAuthStore.setState(initialState)
   await useAuthStore.persist.clearStorage()
-  vi.mocked(useStationStore.getState).mockReturnValue({
-    selectedStationId: null,
-    setSelectedStation: vi.fn(),
-    clearSelection: vi.fn(),
-  })
 })
 
 describe('authStore', () => {
-  it('login sin rememberMe no persiste en storage', async () => {
+  it('login con nuevo AuthResponse asigna strU como user.id y user.nombre', async () => {
     mockAuthLogin.mockResolvedValue({
-      user: { id: '1', nombre: 'Test', estaciones: ['1'] },
-      token: 'mock-token-123',
+      strTokenTransaccion: 'B97E4FA3-3E8B',
+      strU: 'andrea',
     })
 
     const { login } = useAuthStore.getState()
-    await login({ usuario: 'test', password: '1234' })
+    await login({ usuario: 'andrea', password: '1234' })
 
     const state = useAuthStore.getState()
     expect(state.isAuthenticated).toBe(true)
     expect(state.isLoading).toBe(false)
     expect(state.error).toBeNull()
-    expect(state.user?.nombre).toBe('Test')
-  })
-
-  it('login con rememberMe=true persiste en storage', async () => {
-    mockAuthLogin.mockResolvedValue({
-      user: { id: '1', nombre: 'Test', estaciones: ['1'] },
-      token: 'mock-token-123',
-    })
-
-    const { login } = useAuthStore.getState()
-    await login({ usuario: 'test', password: '1234' }, true)
-
-    const state = useAuthStore.getState()
-    expect(state.isAuthenticated).toBe(true)
-    expect(state.isLoading).toBe(false)
-    expect(state.user?.nombre).toBe('Test')
+    expect(state.user?.id).toBe('andrea')
+    expect(state.user?.nombre).toBe('andrea')
+    expect(state.user?.estaciones).toBeUndefined()
+    expect(state.token).toBe('B97E4FA3-3E8B')
   })
 
   it('login fallido setea error y no autentica', async () => {
@@ -89,8 +63,8 @@ describe('authStore', () => {
 
   it('logout limpia user, token y isAuthenticated', async () => {
     useAuthStore.setState({
-      user: { id: '1', nombre: 'Test', estaciones: ['1'] },
-      token: 'mock-token-123',
+      user: { id: 'andrea', nombre: 'andrea' },
+      token: 'B97E4FA3',
       isAuthenticated: true,
     })
 
@@ -107,14 +81,5 @@ describe('authStore', () => {
     useAuthStore.setState({ error: 'Algo salio mal' })
     useAuthStore.getState().clearError()
     expect(useAuthStore.getState().error).toBeNull()
-  })
-
-  it('login limpia biometric-auth-token si el usuario es distinto', async () => {
-    mockAuthLogin.mockResolvedValue({
-      user: { id: '2', nombre: 'Nuevo User', estaciones: ['1'] },
-      token: 'mock-token-456',
-    })
-
-    await useAuthStore.getState().login({ usuario: 'nuevo', password: '1234' })
   })
 })

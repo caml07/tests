@@ -8,54 +8,40 @@ vi.mock('@/src/shared/services/api', () => ({
   },
 }))
 
-vi.mock('@react-native-async-storage/async-storage', () => ({
-  default: {
-    getItem: vi.fn(() => Promise.resolve(null)),
-    setItem: vi.fn(() => Promise.resolve()),
-    removeItem: vi.fn(() => Promise.resolve()),
-  },
-}))
-
-vi.mock('react-native-mmkv', () => ({
-  MMKV: function () {
-    return {
-      set: vi.fn(),
-      getString: vi.fn(() => null),
-      delete: vi.fn(),
-    }
-  },
-}))
-
 const mockApiLogin = vi.mocked(api.login)
 
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe('authService.login (DEV mode)', () => {
-  it('devuelve user y token con credenciales demo válidas', async () => {
-    const res = await login({ usuario: 'andrea', password: '1234' })
+describe('authService.login', () => {
+  it('llama api.login con usuario y password', async () => {
+    mockApiLogin.mockResolvedValue({
+      strTokenTransaccion: 'B97E4FA3',
+      strU: 'andrea',
+    })
 
-    expect(res.user.nombre).toBe('Enfermera andrea')
-    expect(res.user.estaciones).toEqual(['1'])
-    expect(res.token).toBeTruthy()
-    expect(res.token).toContain('mock-token-')
+    const result = await login({ usuario: 'andrea', password: '1234' })
+
+    expect(mockApiLogin).toHaveBeenCalledWith('andrea', '1234')
+    expect(result.strTokenTransaccion).toBe('B97E4FA3')
   })
 
-  it('rechaza password incorrecto', async () => {
-    await expect(
-      login({ usuario: 'andrea', password: 'wrong' })
-    ).rejects.toThrow('Credenciales inválidas')
+  it('propaga errores de api.login', async () => {
+    mockApiLogin.mockRejectedValue(new Error('Credenciales inválidas'))
+
+    await expect(login({ usuario: 'x', password: 'y' })).rejects.toThrow('Credenciales inválidas')
   })
 
-  it('rechaza usuario inexistente', async () => {
-    await expect(
-      login({ usuario: 'nobody', password: 'x' })
-    ).rejects.toThrow('Credenciales inválidas')
-  })
+  it('no usa mock local — siempre llama a la API real', async () => {
+    mockApiLogin.mockResolvedValue({
+      strTokenTransaccion: 'TOKEN',
+      strU: 'carlos',
+    })
 
-  it('nunca llama a la API real en DEV', async () => {
-    await login({ usuario: 'andrea', password: '1234' })
-    expect(mockApiLogin).not.toHaveBeenCalled()
+    const result = await login({ usuario: 'carlos', password: '1234' })
+
+    expect(result.strU).toBe('carlos')
+    expect(mockApiLogin).toHaveBeenCalledTimes(1)
   })
 })

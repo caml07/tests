@@ -20,7 +20,7 @@ export function Screen({ children, style, edges = ['top', 'bottom'] }: ScreenPro
   const { isTablet, isDesktop } = useResponsive()
 
   const responsivePadding = isTablet
-    ? { paddingHorizontal: isDesktop ? Spacing.lg : Spacing.md }
+    ? { paddingHorizontal: isDesktop ? Spacing.xxl : Spacing.screen }
     : undefined
 
   return (

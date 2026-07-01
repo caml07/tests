@@ -39,7 +39,8 @@
           "backgroundColor": "#0284c7"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "./plugins/withNetworkSecurityConfig"
     ],
     "experiments": {
       "typedRoutes": true

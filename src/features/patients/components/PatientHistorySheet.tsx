@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useCallback } from 'react'
+import { useFocusEffect } from 'expo-router'
 import { View, Text, Modal, StyleSheet, Pressable, FlatList, KeyboardAvoidingView } from 'react-native'
 import { BlurWrapper } from '@/src/shared/atoms/BlurWrapper'
 import * as Haptics from 'expo-haptics'
@@ -11,6 +12,8 @@ import { Typography, BorderRadius, space, Spacing, shadow } from '@/src/shared/u
 import { useCartStore } from '@/src/features/cart/store/cartStore'
 import { useToast } from '@/src/shared/hooks/useToast'
 import { api } from '@/src/shared/services/api'
+import { getDbSync } from '@/src/shared/services/database'
+import { getPendingItems, subscribePendingUpdates } from '@/src/shared/services/sync'
 import type { Patient, Order } from '@/src/shared/types'
 
 interface PatientHistorySheetProps {
@@ -61,11 +64,37 @@ export function PatientHistorySheet({ visible, paciente, onClose }: PatientHisto
     queryFn: api.getPedidos,
   })
 
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([])
+
+  useFocusEffect(
+    useCallback(() => {
+      const db = getDbSync()
+      if (!db) return
+      const loadPending = () => {
+        getPendingItems(db).then((rows) => {
+          const transformed: Order[] = rows
+            .filter((r) => r.pacienteId === paciente.id)
+            .map((r) => ({
+              id: r.id,
+              items: r.items,
+              pacienteId: r.pacienteId,
+              timestamp: r.timestamp,
+              status: 'local_pending' as const,
+            }))
+          setPendingOrders(transformed)
+        }).catch(() => {})
+      }
+      loadPending()
+      const unsubscribe = subscribePendingUpdates(loadPending)
+      return unsubscribe
+    }, [paciente.id]),
+  )
+
   const patientOrders = useMemo(() => {
-    if (!pedidos) return []
-    const filtered = pedidos.filter((o: Order) => o.pacienteId === paciente.id)
-    return groupByDate(filtered)
-  }, [pedidos, paciente.id])
+    const serverOrders = (pedidos || []).filter((o: Order) => o.pacienteId === paciente.id)
+    const all = [...serverOrders, ...pendingOrders]
+    return groupByDate(all)
+  }, [pedidos, paciente.id, pendingOrders])
 
   const handleRepeat = (comidaId: string, comidaNombre: string, nota: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)

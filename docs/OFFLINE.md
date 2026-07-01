@@ -13,9 +13,16 @@
 ## Esquema SQLite (`nutricion.db`)
 
 ```sql
+CREATE TABLE IF NOT EXISTS agrupaciones (
+  id TEXT PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  icon TEXT NOT NULL DEFAULT ''
+);
+
 CREATE TABLE IF NOT EXISTS stations (
   id TEXT PRIMARY KEY,
-  nombre TEXT NOT NULL
+  nombre TEXT NOT NULL,
+  agrupacionId TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS patients (
@@ -62,10 +69,11 @@ CREATE TABLE IF NOT EXISTS pedidos_queue (
 Login exitoso
     ↓
 syncAll(db)
-    ├── GET /stations   → upsertRows('stations', data)
-    ├── GET /patients   → upsertRows('patients', data)
-    ├── GET /dietas     → upsertRows('dietas', data)
-    └── GET /comidas    → upsertRows('comidas', data)
+    ├── GET /agrupaciones → upsertRows('agrupaciones', data)
+    ├── GET /stations     → upsertRows('stations', data)
+    ├── GET /patients     → upsertRows('patients', data)
+    ├── GET /dietas       → upsertRows('dietas', data)
+    └── GET /comidas      → upsertRows('comidas', data)
     ↓
 UI lista desde SQLite (o API directa para pedidos)
 ```
@@ -133,7 +141,7 @@ export function getDb(): SQLiteDatabase {
 }
 ```
 
-`app/_layout.tsx` llama `setDb(database)` dentro del callback `onInit` de `<SQLiteProvider>`. Cualquier componente que necesite la DB usa `getDb()`.
+`app/_layout.tsx` llama `initDatabase().then(setDb)` al montar. Si falla (DB corrupta), automaticamente borra y recrea el archivo. Cualquier componente que necesite la DB usa `getDbSync()` o `getDb()`.
 
 ## Componentes UI
 

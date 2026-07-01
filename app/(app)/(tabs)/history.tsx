@@ -226,7 +226,7 @@ export default function HistoryScreen() {
         getPendingItems(db).then((rows) => {
           const transformed: Order[] = rows.map((r) => ({
             id: r.id,
-            items: JSON.parse(r.items),
+            items: r.items,
             pacienteId: r.pacienteId,
             timestamp: r.timestamp,
             status: 'local_pending' as const,

@@ -8,7 +8,7 @@
 | Navigation | expo-router (file-based, typed routes) |
 | Server state | @tanstack/react-query v5 |
 | Client state | Zustand v5 + persist (AsyncStorage / SQLiteStorage vía expo-sqlite/kv-store) |
-| Local DB | expo-sqlite (SQLite, schema: stations, patients, dietas, comidas, pedidos_queue) |
+| Local DB | expo-sqlite (SQLite, schema: agrupaciones, stations, patients, dietas, comidas, pedidos_queue) |
 | Network | @react-native-community/netinfo |
 | Animations | Reanimated 4 + Gesture Handler |
 | Forms | react-hook-form + zod |
@@ -20,7 +20,7 @@
 ## Platform
 
 - **Mobile-first**: Single-column, thumb-zone friendly
-- **Tablet**: Breakpoint at 768px (no implementado aún)
+- **Tablet**: Breakpoint at 744px (sidebar + responsive grid)
 - **Android físico**: Samsung Galaxy A54 (desarrollo)
 - **iOS**: Compatible (no testeado en físico)
 
@@ -51,12 +51,13 @@ app/
 ### Schema
 
 ```typescript
-// nutricion.db — 4 tablas de referencia + 1 cola offline
+// nutricion.db — 4 tablas de referencia + 1 cola offline + agrupaciones
 tables:
-  stations:   id, nombre
-  patients:   id, nombre, stationId, habitacion, cama, dietaId, alergias (JSON), notas
-  dietas:     id, nombre, tiempos (JSON), simbolo
-  comidas:    id, dietaId, nombre, tiempo, subcomidas (JSON)
+  agrupaciones: id, nombre, icon
+  stations:     id, nombre, agrupacionId
+  patients:     id, nombre, stationId, habitacion, cama, dietaId, alergias (JSON), notas
+  dietas:       id, nombre, tiempos (JSON), simbolo
+  comidas:      id, dietaId, nombre, tiempo, subcomidas (JSON)
   pedidos_queue: id (TEXT PK), items (JSON), pacienteId, pacienteNombre, timestamp, failed_attempts
 ```
 
@@ -150,15 +151,16 @@ Enfermero autenticado (via /nurses)
 Definiciones en `src/shared/types/index.ts`:
 
 ```typescript
+interface Agrupacion { id, nombre, icon }
 interface User { id, nombre, estaciones }
-interface Station { id, nombre }
+interface Station { id, nombre, agrupacionId }
 interface Patient { id, nombre, stationId, habitacion, cama, dietaId, alergias[], notas }
 interface Dieta { id, nombre, tiempos[], simbolo }
 interface Comida { id, dietaId, nombre, tiempo, subcomidas[] }
 interface Subcomida { id, nombre, descripcion, ingredientes[] }
 interface Ingrediente { id, nombre }
 interface CartItem { id, comidaId, comidaNombre, pacienteId, pacienteNombre, flagHoy, nota }
-interface Order { id, items[], pacienteId, timestamp, status: 'sent' | 'en_cocina' }
+interface Order { id, items[], pacienteId, timestamp, status: 'sent' | 'en_cocina' | 'local_pending' }
 ```
 
 ---
@@ -216,6 +218,7 @@ El store es plano (no agrupado internamente) pero expone selectores por `pacient
 | ADR-005 | Ordenes status: 'sent' | 'en_cocina' | 2026-06-23 |
 | ADR-006 | ADB reverse + EXPO_PUBLIC_API_URL para físico | 2026-06-23 |
 | ADR-007 | Offline-first con SQLite (expo-sqlite) | 2026-06-24 |
+| ADR-008 | Agrupaciones como sección contenedora de estaciones | 2026-06-30 |
 
 ---
 
@@ -224,7 +227,8 @@ El store es plano (no agrupado internamente) pero expone selectores por `pacient
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | /nurses | Login (validación cliente-side) |
-| GET | /stations | Lista de estaciones |
+| GET | /agrupaciones | Agrupaciones de estaciones (Emergencia, Hospitalización, Ambulatorio) |
+| GET | /stations | Lista de estaciones (con agrupacionId) |
 | GET | /patients | Pacientes (filtro por estación en cliente) |
 | GET | /dietas | Tipos de dieta |
 | GET | /comidas | Catálogo de comidas con subcomidas |

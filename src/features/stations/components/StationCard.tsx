@@ -10,10 +10,11 @@ interface StationCardProps {
   nombre: string
   selected: boolean
   onPress: () => void
+  pacienteCount?: number
   wrapperStyle?: ViewStyle
 }
 
-export function StationCard({ id, nombre, selected, onPress, wrapperStyle }: StationCardProps) {
+export function StationCard({ id, nombre, selected, onPress, pacienteCount, wrapperStyle }: StationCardProps) {
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
 
@@ -44,6 +45,11 @@ export function StationCard({ id, nombre, selected, onPress, wrapperStyle }: Sta
         >
           {nombre}
         </Text>
+        {pacienteCount !== undefined && (
+          <Text style={[styles.count, { color: selected ? colors.primary : colors.textSecondary }]}>
+            {pacienteCount} {pacienteCount === 1 ? 'paciente' : 'pacientes'}
+          </Text>
+        )}
       </View>
     </PressableScale>
   )
@@ -63,6 +69,10 @@ const styles = StyleSheet.create({
   },
   nombre: {
     ...Typography.title3,
+    textAlign: 'center',
+  },
+  count: {
+    ...Typography.caption1,
     textAlign: 'center',
   },
 })

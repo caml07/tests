@@ -21,6 +21,7 @@ import {
   Inbox,
   Lock,
   LogOut,
+  Mars,
   Moon,
   Plus,
   Search,
@@ -28,6 +29,7 @@ import {
   Sun,
   Sunrise,
   User,
+  Venus,
   X,
 } from 'lucide-react-native'
 
@@ -62,6 +64,8 @@ const LUCIDE_MAP = {
   'questionmark.circle': HelpCircle,
   'flame.fill': Flame,
   'fingerprint': Fingerprint,
+  'mars.fill': Mars,
+  'venus.fill': Venus,
 } as const
 
 export type IconName = keyof typeof LUCIDE_MAP

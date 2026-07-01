@@ -5,12 +5,19 @@ import { useColorScheme } from '@/components/useColorScheme'
 import Colors from '@/constants/Colors'
 import { Typography, BorderRadius, space, Spacing } from '@/src/shared/utils/tokens'
 
+const SEXO_ICON: Record<string, IconName> = {
+  M: 'mars.fill',
+  F: 'venus.fill',
+}
+
 interface PatientMenuHeaderProps {
   nombre: string
   habitacion: string
   cama: string
   dietaNombre: string
   dietaSimbolo: IconName
+  sexo?: string
+  edad?: string
   showBack?: boolean
   onBackPress?: () => void
   cartCount?: number
@@ -18,9 +25,10 @@ interface PatientMenuHeaderProps {
   onHistoryPress?: () => void
 }
 
-export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dietaSimbolo, showBack, onBackPress, cartCount, onCartPress, onHistoryPress }: PatientMenuHeaderProps) {
+export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dietaSimbolo, sexo, edad, showBack, onBackPress, cartCount, onCartPress, onHistoryPress }: PatientMenuHeaderProps) {
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
+  const sexoIcon = sexo ? SEXO_ICON[sexo] ?? 'person.fill' : 'person.fill'
 
   return (
     <View style={[styles.header, { backgroundColor: colors.surfaceAlt }]}>
@@ -34,12 +42,17 @@ export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dieta
         </Pressable>
       )}
       <View style={[styles.avatar, { backgroundColor: colors.primaryLight }]}>
-        <Icon name="person.fill" tintColor={colors.primary} size={22} />
+        <Icon name={sexoIcon} tintColor={colors.primary} size={22} />
       </View>
       <View style={styles.info}>
         <Text style={[styles.nombre, { color: colors.text }]} numberOfLines={1}>
           {nombre}
         </Text>
+        {(sexo || edad) && (
+          <Text style={[styles.room, { color: colors.textSecondary }]}>
+            {[sexo === 'M' ? 'Masculino' : sexo === 'F' ? 'Femenino' : null, edad].filter(Boolean).join(' · ')}
+          </Text>
+        )}
         <Text style={[styles.room, { color: colors.textSecondary }]}>
           Hab. {habitacion} · Cama {cama}
         </Text>

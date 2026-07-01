@@ -77,8 +77,8 @@ vi.mock('lucide-react-native', () => {
     'AlertCircle', 'AlertTriangle', 'ArrowRight', 'BedDouble', 'Building2',
     'Check', 'CheckCircle', 'ChevronDown', 'ChevronLeft', 'ChevronRight',
     'ChevronUp', 'Clock', 'Coffee', 'FileText', 'Fingerprint', 'Flame',
-    'Heart', 'HelpCircle', 'Inbox', 'Lock', 'LogOut', 'Moon', 'Plus',
-    'Search', 'ShoppingCart', 'Sun', 'Sunrise', 'User', 'X',
+    'Heart', 'HelpCircle', 'Inbox', 'Lock', 'LogOut', 'Mars', 'Moon', 'Plus',
+    'Search', 'ShoppingCart', 'Sun', 'Sunrise', 'User', 'Venus', 'X',
   ]
   const exports: Record<string, any> = {}
   for (const name of icons) exports[name] = MockIcon

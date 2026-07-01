@@ -2,44 +2,23 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Patient, Dieta } from '@/src/shared/types'
 import { api } from '@/src/shared/services/api'
-import { getAllRows, getDbSync } from '@/src/shared/services/database'
 
 interface PatientWithDieta extends Patient {
   dietaNombre: string
   dietaSimbolo: string
-}
-
-async function fetchPacientes(stationId: string): Promise<Patient[]> {
-  try {
-    return await api.getPacientes(stationId)
-  } catch {
-    const db = getDbSync()
-    if (!db) return []
-    const rows = await getAllRows<Patient>(db, 'patients', 'stationId = ?', [stationId])
-    return rows
-  }
-}
-
-async function fetchDietas(): Promise<Dieta[]> {
-  try {
-    return await api.getDietas()
-  } catch {
-    const db = getDbSync()
-    if (!db) return []
-    return getAllRows<Dieta>(db, 'dietas')
-  }
+  alergias: string[]
 }
 
 export function usePatients(stationId: string, searchQuery: string) {
   const pacientesQuery = useQuery<Patient[]>({
     queryKey: ['pacientes', stationId],
-    queryFn: () => fetchPacientes(stationId),
+    queryFn: () => api.getPacientes(stationId),
     enabled: !!stationId,
   })
 
   const dietasQuery = useQuery<Dieta[]>({
     queryKey: ['dietas'],
-    queryFn: fetchDietas,
+    queryFn: () => api.getDietas(),
   })
 
   const filtered = useMemo<PatientWithDieta[]>(() => {
@@ -56,8 +35,12 @@ export function usePatients(stationId: string, searchQuery: string) {
     }
     return list.map(p => {
       const info = dietaMap[p.dietaId]
+      const alergias = Array.isArray(p.alergias) ? p.alergias
+        : typeof p.alergias === 'string' ? [p.alergias]
+        : []
       return {
         ...p,
+        alergias,
         dietaNombre: info?.nombre || 'Sin especificar',
         dietaSimbolo: info?.simbolo || 'questionmark.circle',
       }

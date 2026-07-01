@@ -85,13 +85,15 @@ export default function PatientListScreen() {
             refreshing={refreshing}
             onRefresh={onRefresh}
             renderItem={({ item }) => (
-              <PatientCard
-                patient={item}
-                onPress={() => router.push({
-                  pathname: '/paciente/[stationId]/[patientId]' as any,
-                  params: { stationId, patientId: item.id },
-                })}
-              />
+              <View style={isTablet ? { flex: 1 } : undefined}>
+                <PatientCard
+                  patient={item}
+                  onPress={() => router.push({
+                    pathname: '/paciente/[stationId]/[patientId]' as any,
+                    params: { stationId, patientId: item.id },
+                  })}
+                />
+              </View>
             )}
             contentContainerStyle={styles.list}
             ItemSeparatorComponent={() => <View style={{ height: Spacing.sm }} />}

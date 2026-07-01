@@ -19,3 +19,8 @@ export const API_BASE = __DEV__
   : 'https://api.produccion.com'
 
 export const ASSETS_BASE = API_BASE.replace(/\/+$/, '')
+
+// Real HVP API (command-based, non-REST)
+export const STATIC_TOKEN = 'df9d848b-e164-49ee-a9f0-602468375674'
+export const INTERFACE_URL = 'https://www.portalvivianpellas.com.ni/EME4/Interface/HIS'
+export const INTERFACE_SYSTEM = 'HVPDietaApp'

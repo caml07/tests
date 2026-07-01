@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
 import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Icon } from '@/src/shared/atoms/Icon'
 import { router } from 'expo-router'
+import { useQuery } from '@tanstack/react-query'
 import Colors from '@/constants/Colors'
 import { useColorScheme } from '@/components/useColorScheme'
 import { useAuth } from '@/src/features/auth/hooks/useAuth'
@@ -13,6 +15,8 @@ import { StationCard } from '@/src/features/stations/components/StationCard'
 import { Screen } from '@/src/shared/organisms/Screen'
 import { Spacing, Typography, color, space } from '@/src/shared/utils/tokens'
 import { useResponsive } from '@/src/shared/hooks/useResponsive'
+import { api } from '@/src/shared/services/api'
+import type { Patient, Agrupacion, Station } from '@/src/shared/types'
 
 export default function EstacionesScreen() {
   const colorScheme = useColorScheme()
@@ -23,6 +27,41 @@ export default function EstacionesScreen() {
   const insets = useSafeAreaInsets()
   const { isDesktop } = useResponsive()
   const cardWidth = isDesktop ? '30%' : '47%'
+
+  const { data: agrupaciones } = useQuery({
+    queryKey: ['agrupaciones'],
+    queryFn: api.getAgrupaciones,
+  })
+
+  const { data: allPatients } = useQuery({
+    queryKey: ['patients'],
+    queryFn: api.getAllPatients,
+  })
+
+  const patientCountByStation = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const p of allPatients || []) {
+      counts[p.stationId] = (counts[p.stationId] || 0) + 1
+    }
+    return counts
+  }, [allPatients])
+
+  const grouped = useMemo(() => {
+    if (!agrupaciones) return [] as (Agrupacion & { stations: Station[] })[]
+    return agrupaciones.map((ag: Agrupacion) => {
+      const groupStations = stations.filter((s: Station) => s.agrupacionId === ag.id)
+      return { ...ag, stations: groupStations }
+    }).filter((g) => g.stations.length > 0)
+  }, [agrupaciones, stations])
+
+  const patientCountByAgrupacion = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const ag of agrupaciones || []) {
+      const stationIds = stations.filter((s) => s.agrupacionId === ag.id).map((s) => s.id)
+      counts[ag.id] = (allPatients || []).filter((p: Patient) => stationIds.includes(p.stationId)).length
+    }
+    return counts
+  }, [agrupaciones, stations, allPatients])
 
   return (
     <Screen edges={['top']}>
@@ -50,14 +89,7 @@ export default function EstacionesScreen() {
           </Text>
         </View>
 
-        <View style={styles.sectionHeader}>
-          <Icon name="building.2.fill" tintColor={colors.primary} size={14} />
-          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-            ESTACIONES
-          </Text>
-        </View>
-
-        {isLoading ? (
+        {(isLoading) ? (
           <View style={styles.skeletonGrid}>
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} width="100%" height={130} borderRadius={16} />
@@ -71,21 +103,37 @@ export default function EstacionesScreen() {
             message="No hay estaciones disponibles."
           />
         ) : (
-          <View style={[styles.grid, isDesktop && { gap: Spacing.xl }]}>
-            {stations.map((station) => (
-              <StationCard
-                key={station.id}
-                id={station.id}
-                nombre={station.nombre}
-                selected={selectedStationId === station.id}
-                onPress={() => {
-                  setSelectedStation(station.id)
-                  router.push({ pathname: '/paciente/[stationId]', params: { stationId: station.id } })
-                }}
-                wrapperStyle={{ width: cardWidth }}
-              />
-            ))}
-          </View>
+          grouped.map((ag) => (
+            <View key={ag.id} style={styles.agrupacionSection}>
+              <View style={styles.agrupacionHeader}>
+                <Icon name={ag.icon as any} tintColor={colors.primary} size={16} />
+                <Text style={[styles.agrupacionTitle, { color: colors.text }]}>
+                  {ag.nombre}
+                </Text>
+                <View style={[styles.agrupacionBadge, { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={[styles.agrupacionCount, { color: colors.primary }]}>
+                    {patientCountByAgrupacion[ag.id]} {patientCountByAgrupacion[ag.id] === 1 ? 'paciente' : 'pacientes'}
+                  </Text>
+                </View>
+              </View>
+              <View style={[styles.grid, isDesktop && { gap: Spacing.xl }]}>
+                {ag.stations.map((station) => (
+                  <StationCard
+                    key={station.id}
+                    id={station.id}
+                    nombre={station.nombre}
+                    selected={selectedStationId === station.id}
+                    pacienteCount={patientCountByStation[station.id] || 0}
+                    onPress={() => {
+                      setSelectedStation(station.id)
+                      router.push({ pathname: '/paciente/[stationId]', params: { stationId: station.id } })
+                    }}
+                    wrapperStyle={{ width: cardWidth }}
+                  />
+                ))}
+              </View>
+            </View>
+          ))
         )}
       </ScrollView>
     </Screen>
@@ -146,6 +194,28 @@ const styles = StyleSheet.create({
   },
   skeletonGrid: {
     gap: Spacing.md,
+  },
+  agrupacionSection: {
+    marginBottom: Spacing.sectionGap,
+  },
+  agrupacionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  agrupacionTitle: {
+    ...Typography.title3,
+    fontWeight: '700',
+  },
+  agrupacionBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: 999,
+  },
+  agrupacionCount: {
+    ...Typography.caption1,
+    fontWeight: '600',
   },
   grid: {
     flexDirection: 'row',

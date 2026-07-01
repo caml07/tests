@@ -1,12 +1,12 @@
 export interface User {
   id: string
   nombre: string
-  estaciones: string[]
+  estaciones?: string[]
 }
 
 export interface AuthResponse {
-  user: User
-  token: string
+  strTokenTransaccion: string
+  strU: string
 }
 
 export interface LoginCredentials {
@@ -14,9 +14,16 @@ export interface LoginCredentials {
   password: string
 }
 
+export interface Agrupacion {
+  id: string
+  nombre: string
+  icon: string
+}
+
 export interface Station {
   id: string
   nombre: string
+  agrupacionId: string
 }
 
 export interface Patient {
@@ -26,8 +33,11 @@ export interface Patient {
   habitacion: string
   cama: string
   dietaId: string
-  alergias: string[]
+  alergias: string[] | string
   notas: string
+  decPaciente?: number
+  sexo?: string
+  edad?: string
 }
 
 export interface Dieta {
@@ -75,5 +85,67 @@ export interface Order {
   pacienteId: string
   timestamp: string
   status: 'sent' | 'en_cocina' | 'local_pending'
+}
+
+export interface InterfaceResponse<T> {
+  strMsg: string
+  strMsgType: string
+  strTokenTransaccion?: string
+  intMsgError: number
+  datResponse?: string
+  listCenso?: T
+}
+
+export interface CensoPatient {
+  decId?: number
+  intCompany?: number
+  intFacility?: number
+  strEstacion?: string
+  decPaciente: number
+  decCuenta: number
+  strPaciente: string
+  strPacienteNombresApellidos: string
+  datNacimiento?: string
+  strAreaServicio: string
+  datAdmision?: string
+  strEstadia?: string
+  intEdad?: number
+  intDoctor?: number
+  strDoctor?: string
+  intSeguro?: number
+  intHabitacion: number
+  intCama: number
+  strSexo: string
+  strSeguro?: string
+  strEdad: string
+  intAgrupacion: number
+  strAgrupacion: string
+  intAlmacen?: number
+  strCeco?: string
+  strInterconsultantes?: string
+  bitRiesgoCaida?: boolean
+  bitInfeccion?: boolean
+  bitRiesgoInfeccion?: boolean
+  bitAlergia?: boolean
+  bitPacientesAR?: boolean
+  bitPsiquiatra?: boolean
+  intRecordMedico?: number
+  strFacilidad?: string
+  decPeso?: number
+  decTalla?: number
+  decSaldo?: number
+  intFacturaTEMP?: number
+  strMotivoConsulta: string
+  strNivelTriage?: string
+  strNivelTriageCOLOR?: string
+  intNivelTriage?: number
+  strAlergias: string
+  strRiesgoCaidas?: string
+  strSolicitudAlta?: string
+  strPsiquiatrico?: string
+  strPacienteAltoRiesgo?: string
+  strRiesgoInfeccion?: string
+  strInfeccioso?: string
+  strNoRCP?: string
 }
 

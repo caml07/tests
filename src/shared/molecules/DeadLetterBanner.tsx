@@ -12,13 +12,14 @@ import {
   discardDeadLetterItem,
 } from '@/src/shared/services/sync'
 import type { SQLiteDatabase } from 'expo-sqlite'
+import type { CartItem } from '@/src/shared/types'
 
 interface DeadLetterEntry {
   id: string
   pacienteNombre: string
   timestamp: string
   failed_attempts: number
-  items: string
+  items: CartItem[]
 }
 
 export function DeadLetterBanner() {

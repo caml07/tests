@@ -53,8 +53,11 @@ export default function PatientMenuScreen() {
       const dietaSimbolo = diet?.simbolo || 'questionmark.circle'
       const dietTiempos = diet?.tiempos || []
 
-      setPatient({ ...p, dietaNombre, dietaSimbolo })
-      setTiempos(dietTiempos)
+      const alergias = Array.isArray(p.alergias) ? p.alergias
+        : typeof p.alergias === 'string' ? [p.alergias]
+        : []
+      setPatient({ ...p, alergias, dietaNombre, dietaSimbolo })
+      setTiempos(Array.isArray(dietTiempos) ? dietTiempos : [])
       if (dietTiempos.length > 0) {
         setSelectedTiempo(dietTiempos[0])
       }
@@ -89,6 +92,8 @@ export default function PatientMenuScreen() {
           cama={patient.cama}
           dietaNombre={patient.dietaNombre}
           dietaSimbolo={patient.dietaSimbolo as IconName}
+          sexo={patient.sexo}
+          edad={patient.edad}
           showBack={true}
           onBackPress={() => (router.canGoBack() ? router.back() : router.replace('/(app)/(tabs)'))}
           cartCount={cartCount}

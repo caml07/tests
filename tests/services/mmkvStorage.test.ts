@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockMmkv = vi.hoisted(() => ({
   set: vi.fn(),
   getString: vi.fn(() => null),
-  delete: vi.fn(),
+  remove: vi.fn(),
 }))
 
 vi.mock('react-native-mmkv', () => ({
-  MMKV: function () { return mockMmkv },
+  createMMKV: () => mockMmkv,
 }))
 
 import { zustandStorage, queryPersisterStorage } from '@/src/shared/services/mmkvStorage'
@@ -19,7 +19,7 @@ describe('zustandStorage', () => {
 
   it('removeItem calls mmkv.delete', () => {
     zustandStorage.removeItem('test-key')
-    expect(mockMmkv.delete).toHaveBeenCalledWith('test-key')
+    expect(mockMmkv.remove).toHaveBeenCalledWith('test-key')
   })
 
   it('getItem calls mmkv.getString', () => {
@@ -38,9 +38,9 @@ describe('queryPersisterStorage', () => {
     vi.clearAllMocks()
   })
 
-  it('removeItem calls mmkv.delete', () => {
+  it('removeItem calls mmkv.remove', () => {
     queryPersisterStorage.removeItem('test-key')
-    expect(mockMmkv.delete).toHaveBeenCalledWith('test-key')
+    expect(mockMmkv.remove).toHaveBeenCalledWith('test-key')
   })
 
   it('getItem calls mmkv.getString', () => {

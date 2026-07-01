@@ -1,6 +1,10 @@
 # Dietas — API Reference
 
-## Mock API (json-server)
+> ⚠️ **Junio 2026**: Migración a API real de HVP Vivian Pellas en curso.
+> La API real NO es REST — es un endpoint único command-based.
+> Ver [`docs/API-INTEGRATION.md`](./API-INTEGRATION.md) para el plan activo.
+
+## Mock API (json-server) — Legacy
 
 Base: `http://localhost:3001` (dev) / `http://127.0.0.1:3001` (Android + ADB reverse)
 
@@ -32,12 +36,29 @@ Enfermeros registrados. Login valida cliente-side (usuario + password).
 
 ---
 
-### GET /stations — Estaciones
+### GET /agrupaciones — Agrupaciones
 
 ```json
 [
-  { "id": "1", "nombre": "3er Piso" },
-  { "id": "2", "nombre": "5to Piso" }
+  { "id": "emergencia", "nombre": "Emergencia", "icon": "cross.case" },
+  { "id": "hospitalizacion", "nombre": "Hospitalización", "icon": "bed.double" },
+  { "id": "ambulatorio", "nombre": "Ambulatorio", "icon": "person" }
+]
+```
+
+Cada agrupación agrupa estaciones relacionadas. El icono es un SF Symbol para mostrar en la UI.
+
+---
+
+### GET /stations — Estaciones
+
+Ahora incluyen `agrupacionId` para agruparlas visualmente:
+
+```json
+[
+  { "id": "1", "nombre": "Emergencia", "agrupacionId": "emergencia" },
+  { "id": "5", "nombre": "3er Piso", "agrupacionId": "hospitalizacion" },
+  { "id": "12", "nombre": "Consulta Externa", "agrupacionId": "ambulatorio" }
 ]
 ```
 
@@ -160,6 +181,7 @@ Response: el objeto creado (con `id` auto-generado por json-server).
 | Endpoint mock | API real planificada | Notas |
 |--------------|---------------------|-------|
 | GET /nurses | POST /auth/login | JWT + refresh token |
+| GET /agrupaciones | GET /api/agrupaciones | Auth required |
 | GET /stations | GET /api/estaciones | Auth required |
 | GET /patients | GET /api/pacientes | Filtro por estación server-side |
 | GET /dietas | GET /api/dietas | Cacheable |
