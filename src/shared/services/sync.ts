@@ -3,10 +3,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import * as FileSystem from 'expo-file-system'
 const FS = FileSystem as unknown as { documentDirectory: string }
 import { api } from './api'
-import { getAllRows, deleteWhere } from './database'
+import { getAllRows, deleteWhere, getMetaValue, setMetaValue } from './database'
 import type { Station, Patient, CartItem, Agrupacion, CensoPatient } from '@/src/shared/types'
-import { mmkv } from './mmkvStorage'
-
 const MAX_RETRIES = 5
 
 const AGRUPACION_ICONS: Record<number, string> = {
@@ -80,11 +78,11 @@ export function parseCenso(list: CensoPatient[]): { agrupaciones: Agrupacion[]; 
       })
     }
 
-    if (!seenStations.has(p.strAreaServicio)) {
-      seenStations.add(p.strAreaServicio)
+    if (!seenStations.has(p.strEstacion)) {
+      seenStations.add(p.strEstacion)
       stations.push({
-        id: p.strAreaServicio,
-        nombre: p.strAreaServicio,
+        id: p.strEstacion,
+        nombre: p.strEstacion,
         agrupacionId: String(p.intAgrupacion),
       })
     }
@@ -93,7 +91,7 @@ export function parseCenso(list: CensoPatient[]): { agrupaciones: Agrupacion[]; 
       id: String(p.decCuenta),
       decPaciente: p.decPaciente,
       nombre: stripHtml(p.strPacienteNombresApellidos),
-      stationId: p.strAreaServicio,
+      stationId: p.strEstacion,
       habitacion: String(p.intHabitacion),
       cama: String(p.intCama),
       alergias: parseAlergias(p.strAlergias, p.bitAlergia),
@@ -163,19 +161,29 @@ function invalidateCache(queryClient: QueryClient) {
 }
 
 export async function syncAll(db: SQLiteDatabase, queryClient?: QueryClient, strU?: string): Promise<boolean> {
+  let newHash = ''
+  let censoCount = 0
+  let agrupaciones: Agrupacion[] = []
+  let stations: Station[] = []
+  let patients: Patient[] = []
+
   try {
     const [censoRes] = await Promise.all([
       api.getCenso(strU),
     ])
 
     const list = censoRes[0].listCenso ?? []
-    const newHash = hashJSON(list)
-    if (mmkv.getString(HASH_KEY) === newHash) {
+    censoCount = list.length
+    newHash = hashJSON(list)
+    if (await getMetaValue(db, HASH_KEY) === newHash) {
       if (queryClient) invalidateCache(queryClient)
       return true
     }
 
-    const { agrupaciones, stations, patients } = parseCenso(list)
+    const parsed = parseCenso(list)
+    agrupaciones = parsed.agrupaciones
+    stations = parsed.stations
+    patients = parsed.patients
 
     if (__DEV__) {
       console.log('[SYNC] ─── CENSO DUMP ───')
@@ -189,29 +197,52 @@ export async function syncAll(db: SQLiteDatabase, queryClient?: QueryClient, str
       console.log('[SYNC] ────────────────')
     }
 
-    await db.runAsync('DELETE FROM agrupaciones')
-    for (const r of agrupaciones) {
-      await db.runAsync('INSERT OR REPLACE INTO agrupaciones (id, nombre, icon) VALUES (?, ?, ?)', val(r.id), val(r.nombre), val(r.icon))
-    }
-    await db.runAsync('DELETE FROM stations')
-    for (const r of stations) {
-      await db.runAsync('INSERT OR REPLACE INTO stations (id, nombre, agrupacionId) VALUES (?, ?, ?)', val(r.id), val(r.nombre), val(r.agrupacionId))
-    }
-    await db.runAsync('DELETE FROM patients')
-    for (const r of patients) {
-      const alergias = Array.isArray(r.alergias) ? JSON.stringify(r.alergias) : val(r.alergias)
-      await db.runAsync(
-        'INSERT OR REPLACE INTO patients (id, nombre, stationId, habitacion, cama, dietaId, alergias, notas, sexo, edad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        val(r.id), val(r.nombre), val(r.stationId), val(r.habitacion), val(r.cama), val(r.dietaId), alergias, val(r.notas), val(r.sexo), val(r.edad),
-      )
+    await db.execAsync('BEGIN TRANSACTION')
+    try {
+      await db.execAsync('DELETE FROM agrupaciones')
+      await db.execAsync('DELETE FROM stations')
+      await db.execAsync('DELETE FROM patients')
+
+      for (const r of agrupaciones) {
+        await db.runAsync('INSERT OR REPLACE INTO agrupaciones (id, nombre, icon) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.icon)])
+      }
+      for (const r of stations) {
+        await db.runAsync('INSERT OR REPLACE INTO stations (id, nombre, agrupacionId) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.agrupacionId)])
+      }
+      for (const r of patients) {
+        const alergias = Array.isArray(r.alergias) ? JSON.stringify(r.alergias) : val(r.alergias)
+        await db.runAsync(
+          'INSERT OR REPLACE INTO patients (id, nombre, stationId, habitacion, cama, dietaId, alergias, notas, sexo, edad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [val(r.id), val(r.nombre), val(r.stationId), val(r.habitacion), val(r.cama), val(r.dietaId), alergias, val(r.notas), val(r.sexo), val(r.edad)],
+        )
+      }
+
+      await db.execAsync('COMMIT')
+    } catch (e) {
+      try { await db.execAsync('ROLLBACK') } catch {}
+      throw e
     }
 
-    mmkv.set(HASH_KEY, newHash)
+    await setMetaValue(db, HASH_KEY, newHash)
     if (queryClient) invalidateCache(queryClient)
     if (__DEV__) dumpDb(db).catch(() => {})
     return true
   } catch (e) {
-    if (__DEV__) console.warn('[SYNC] syncAll failed:', e)
+    if (__DEV__) {
+      console.warn('[SYNC] syncAll failed:', e)
+      const path = FS.documentDirectory + 'sync-error.txt'
+      const lines = [
+        `[SYNC-ERROR] ${new Date().toISOString()}`,
+        `Error: ${(e as Error)?.message ?? String(e)}`,
+        `Stack: ${(e as Error)?.stack ?? ''}`,
+        `Hash: ${newHash || '?'}`,
+        `Censo raw: ${censoCount}`,
+        `Agrupaciones: ${agrupaciones.length}`,
+        `Stations: ${stations.length}`,
+        `Patients: ${patients.length}`,
+      ]
+      await FileSystem.writeAsStringAsync(path, lines.join('\n'), { encoding: FileSystem.EncodingType.UTF8 }).catch(() => {})
+    }
     return false
   }
 }
@@ -288,7 +319,6 @@ export async function getDeadLetterItems(db: SQLiteDatabase): Promise<QueueEntry
 }
 
 export async function getPendingItems(db: SQLiteDatabase): Promise<QueueEntry[]> {
-  const now = new Date().toISOString()
   return getAllRows<QueueEntry>(
     db,
     'pedidos_queue',

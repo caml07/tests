@@ -15,8 +15,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import { Stack } from 'expo-router'
 import { useFonts } from 'expo-font'
 import * as ExpoSplash from 'expo-splash-screen'
-import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
-import * as SQLite from 'expo-sqlite'
+
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { queryPersisterStorage } from '@/src/shared/services/mmkvStorage'
@@ -29,7 +28,7 @@ import { useToast } from '@/src/shared/hooks/useToast'
 import { ToastProvider } from '@/src/shared/providers/ToastProvider'
 import { SplashScreen as Splash } from '@/src/shared/organisms/SplashScreen'
 import { getDb, getDbSync } from '@/src/shared/services/database'
-import { dumpDb, flushQueue, syncAll } from '@/src/shared/services/sync'
+import { flushQueue, syncAll } from '@/src/shared/services/sync'
 import { mmkv } from '@/src/shared/services/mmkvStorage'
 import { queryClient } from '@/src/shared/services/queryClient'
 
@@ -40,11 +39,34 @@ export { ErrorBoundary } from 'expo-router'
 function DatabaseSync() {
   const toast = useToast()
   const wasOffline = useRef(false)
-  const netInfo = useNetInfo()
-  const isConnected = netInfo.isConnected ?? false
+  const isConnected = useNetInfo().isConnected ?? false
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
 
   useEffect(() => {
-    if (netInfo.isConnected === null) return
+    if (!isAuthenticated) return
+    const strU = useAuthStore.getState().user?.id ?? undefined
+    ;(async () => {
+      try {
+        const db = await getDb()
+        const ok = await syncAll(db, queryClient, strU)
+        if (!ok) toast.show({ message: 'No se pudo sincronizar, mostrando datos locales', icon: 'exclamationmark.triangle.fill' })
+      } catch (e) {
+        toast.show({ message: 'Error de sincronización', icon: 'exclamationmark.triangle.fill' })
+      }
+    })()
+    const interval = setInterval(async () => {
+      try {
+        const db = await getDb()
+        const ok = await syncAll(db, queryClient, strU)
+        if (!ok) toast.show({ message: 'No se pudo sincronizar', icon: 'exclamationmark.triangle.fill' })
+      } catch {
+        toast.show({ message: 'Error de sincronización', icon: 'exclamationmark.triangle.fill' })
+      }
+    }, 5 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [isAuthenticated, toast])
+
+  useEffect(() => {
     if (isConnected && wasOffline.current) {
       ;(async () => {
         try {
@@ -62,7 +84,7 @@ function DatabaseSync() {
       })()
     }
     wasOffline.current = !isConnected
-  }, [isConnected, netInfo.isConnected, toast])
+  }, [isConnected, toast])
 
   return null
 }
@@ -70,7 +92,6 @@ function DatabaseSync() {
 export default function RootLayout() {
   useScreenOrientation();
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
-  useDrizzleStudio(SQLite.openDatabaseSync('nutricion.db'))
   const [fontsLoaded] = useFonts({
     PlusJakartaSans: require('@/assets/fonts/PlusJakartaSans[wght].ttf'),
     'PlusJakartaSans-Italic': require('@/assets/fonts/PlusJakartaSans-Italic[wght].ttf'),
@@ -113,28 +134,6 @@ export default function RootLayout() {
       }
     })()
   }, [ready])
-
-  useEffect(() => {
-    if (!isAuthenticated) return
-    const strU = useAuthStore.getState().user?.id ?? undefined
-    ;(async () => {
-      try {
-        const db = await getDb()
-        await syncAll(db, queryClient, strU)
-      } catch (e) {
-        if (__DEV__) console.error('[SYNC]', e)
-      }
-    })()
-    const interval = setInterval(async () => {
-      try {
-        const db = await getDb()
-        await syncAll(db, queryClient, strU)
-      } catch (e) {
-        if (__DEV__) console.error('[SYNC]', e)
-      }
-    }, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [isAuthenticated])
 
   const persister = useMemo(
     () => createSyncStoragePersister({ storage: queryPersisterStorage }),

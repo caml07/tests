@@ -31,7 +31,7 @@ export async function initDatabase(name = 'nutricion.db'): Promise<SQLiteDatabas
 }
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
-  const DATABASE_VERSION = 5
+  const DATABASE_VERSION = 6
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version')
   const currentVersion = result?.user_version ?? 0
 
@@ -168,6 +168,16 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     }
   }
 
+  // v5 → v6: tabla meta para sync state (censoHash, etc.)
+  if (currentVersion < 6) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS meta (
+        key TEXT PRIMARY KEY NOT NULL,
+        value TEXT NOT NULL
+      );
+    `)
+  }
+
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`)
 }
 
@@ -180,7 +190,7 @@ function assertTableAllowed(table: string): void {
 }
 
 function toBindValue(v: unknown): SQLiteBindValue {
-  if (v === null || v === undefined) return ''
+  if (v === null || v === undefined) return null
   if (Array.isArray(v) || typeof v === 'object') return JSON.stringify(v)
   if (typeof v === 'number' || typeof v === 'boolean') return v
   return String(v)
@@ -232,4 +242,15 @@ export async function getAllRows<T>(db: SQLiteDatabase, table: string, where?: s
 export async function deleteWhere(db: SQLiteDatabase, table: string, where: string, params: SQLiteBindValue[]): Promise<void> {
   assertTableAllowed(table)
   await db.runAsync(`DELETE FROM ${table} WHERE ${where}`, ...params)
+}
+
+const META_TABLE = 'meta'
+
+export async function getMetaValue(db: SQLiteDatabase, key: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ value: string }>(`SELECT value FROM ${META_TABLE} WHERE key = ?`, key)
+  return row?.value ?? null
+}
+
+export async function setMetaValue(db: SQLiteDatabase, key: string, value: string): Promise<void> {
+  await db.runAsync(`INSERT OR REPLACE INTO ${META_TABLE} (key, value) VALUES (?, ?)`, key, value)
 }
