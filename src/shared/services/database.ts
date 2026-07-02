@@ -1,14 +1,60 @@
 import { openDatabaseAsync, deleteDatabaseAsync, type SQLiteDatabase, type SQLiteBindValue } from 'expo-sqlite'
+import { log, warn, error as logError } from './appLogger'
 
 let _db: SQLiteDatabase | null = null
+let _opQueue: Array<() => void> = []
+let _opBusy = false
+
+export function invalidateDb(): void {
+  log('DB', 'invalidateDb: resetting connection')
+  _db = null
+}
+
+async function runOpQueue(): Promise<void> {
+  if (_opBusy || _opQueue.length === 0) return
+  _opBusy = true
+  while (_opQueue.length > 0) {
+    const task = _opQueue.shift()
+    try {
+      await task?.()
+    } catch (e) {
+      const msg = (e as Error)?.message ?? ''
+      if (msg.includes('prepareAsync') || msg.includes('NativeDatabase') || msg.includes('NullPointerException')) {
+        logError('DB', 'Native NPE detected in queue, invalidating connection', { message: msg })
+        invalidateDb()
+      }
+    }
+  }
+  _opBusy = false
+}
+
+export function withDb<T>(fn: (db: SQLiteDatabase) => Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    _opQueue.push(async () => {
+      try {
+        const db = await getDb()
+        resolve(await fn(db))
+      } catch (e) {
+        reject(e)
+      }
+    })
+    runOpQueue()
+  })
+}
 
 export function setDb(db: SQLiteDatabase): void {
+  log('DB', 'setDb called')
   _db = db
 }
 
 export async function getDb(): Promise<SQLiteDatabase> {
-  if (_db) return _db
+  if (_db) {
+    log('DB', 'getDb: returning existing instance')
+    return _db
+  }
+  log('DB', 'getDb: no instance, calling initDatabase...')
   _db = await initDatabase()
+  log('DB', 'getDb: initDatabase done')
   return _db
 }
 
@@ -18,14 +64,22 @@ export function getDbSync(): SQLiteDatabase | null {
 
 export async function initDatabase(name = 'nutricion.db'): Promise<SQLiteDatabase> {
   try {
-    const db = await openDatabaseAsync(name)
+    log('DB', `initDatabase: opening "${name}"...`)
+    const db = await openDatabaseAsync(name, { useNewConnection: true })
+    log('DB', 'initDatabase: open OK, enabling WAL mode...')
+    await db.execAsync('PRAGMA journal_mode = WAL')
+    log('DB', 'initDatabase: running migration...')
     await migrateDbIfNeeded(db)
+    log('DB', 'initDatabase: migration done')
     return db
-  } catch {
-    if (__DEV__) console.warn('[DB] Init failed, wiping database and retrying...')
+  } catch (e) {
+    warn('DB', `initDatabase: first attempt failed, wiping and retrying`, (e as Error)?.message)
     await deleteDatabaseAsync(name).catch(() => {})
-    const db = await openDatabaseAsync(name)
+    log('DB', 'initDatabase: deleted old DB, retrying open...')
+    const db = await openDatabaseAsync(name, { useNewConnection: true })
+    await db.execAsync('PRAGMA journal_mode = WAL')
     await migrateDbIfNeeded(db)
+    log('DB', 'initDatabase: retry done')
     return db
   }
 }
@@ -34,10 +88,10 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const DATABASE_VERSION = 6
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version')
   const currentVersion = result?.user_version ?? 0
+  log('DB', `Migration: current_version=${currentVersion}, target=${DATABASE_VERSION}`)
 
-  if (currentVersion >= DATABASE_VERSION) return
+  if (currentVersion >= DATABASE_VERSION) { log('DB', 'Migration: already up to date'); return }
 
-  // v0 → v1: schema inicial
   if (currentVersion < 1) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS stations (
@@ -52,7 +106,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         habitacion TEXT NOT NULL,
         cama TEXT NOT NULL,
         dietaId TEXT NOT NULL,
-        alergias TEXT NOT NULL DEFAULT '[]',
+        alergias TEXT NOT NULL DEFAULT '',
         notas TEXT NOT NULL DEFAULT '',
         sexo TEXT NOT NULL DEFAULT '',
         edad TEXT NOT NULL DEFAULT ''
@@ -86,31 +140,21 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     `)
   }
 
-  // v1 → v2: columnas faltantes en pedidos_queue
   if (currentVersion < 2) {
-    const cols = await db.getAllAsync<{ name: string }>(
-      `PRAGMA table_info(pedidos_queue)`
-    )
+    const cols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(pedidos_queue)`)
     const existing = new Set(cols.map(c => c.name))
 
     if (!existing.has('status')) {
-      await db.execAsync(
-        `ALTER TABLE pedidos_queue ADD COLUMN status TEXT NOT NULL DEFAULT 'PENDING'`
-      )
+      await db.execAsync(`ALTER TABLE pedidos_queue ADD COLUMN status TEXT NOT NULL DEFAULT 'PENDING'`)
     }
     if (!existing.has('next_attempt_at')) {
-      await db.execAsync(
-        `ALTER TABLE pedidos_queue ADD COLUMN next_attempt_at TEXT`
-      )
+      await db.execAsync(`ALTER TABLE pedidos_queue ADD COLUMN next_attempt_at TEXT`)
     }
     if (!existing.has('idempotency_key')) {
-      await db.execAsync(
-        `ALTER TABLE pedidos_queue ADD COLUMN idempotency_key TEXT`
-      )
+      await db.execAsync(`ALTER TABLE pedidos_queue ADD COLUMN idempotency_key TEXT`)
     }
   }
 
-  // v2 → v3: tabla agrupaciones + agrupacionId en stations
   if (currentVersion < 3) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS agrupaciones (
@@ -119,18 +163,13 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         icon TEXT NOT NULL DEFAULT ''
       );
     `)
-    const stationCols = await db.getAllAsync<{ name: string }>(
-      `PRAGMA table_info(stations)`
-    )
+    const stationCols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(stations)`)
     const stationExisting = new Set(stationCols.map(c => c.name))
     if (!stationExisting.has('agrupacionId')) {
-      await db.execAsync(
-        `ALTER TABLE stations ADD COLUMN agrupacionId TEXT NOT NULL DEFAULT ''`
-      )
+      await db.execAsync(`ALTER TABLE stations ADD COLUMN agrupacionId TEXT NOT NULL DEFAULT ''`)
     }
   }
 
-  // v3 → v4: regenerar agrupaciones para BDs que se quedaron sin tabla por migración buggy
   if (currentVersion < 4) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS agrupaciones (
@@ -139,36 +178,24 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         icon TEXT NOT NULL DEFAULT ''
       );
     `)
-    const stationCols = await db.getAllAsync<{ name: string }>(
-      `PRAGMA table_info(stations)`
-    )
+    const stationCols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(stations)`)
     const stationExisting = new Set(stationCols.map(c => c.name))
     if (!stationExisting.has('agrupacionId')) {
-      await db.execAsync(
-        `ALTER TABLE stations ADD COLUMN agrupacionId TEXT NOT NULL DEFAULT ''`
-      )
+      await db.execAsync(`ALTER TABLE stations ADD COLUMN agrupacionId TEXT NOT NULL DEFAULT ''`)
     }
   }
 
-  // v4 → v5: sexo y edad en patients
   if (currentVersion < 5) {
-    const patientCols = await db.getAllAsync<{ name: string }>(
-      `PRAGMA table_info(patients)`
-    )
+    const patientCols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(patients)`)
     const existing = new Set(patientCols.map(c => c.name))
     if (!existing.has('sexo')) {
-      await db.execAsync(
-        `ALTER TABLE patients ADD COLUMN sexo TEXT NOT NULL DEFAULT ''`
-      )
+      await db.execAsync(`ALTER TABLE patients ADD COLUMN sexo TEXT NOT NULL DEFAULT ''`)
     }
     if (!existing.has('edad')) {
-      await db.execAsync(
-        `ALTER TABLE patients ADD COLUMN edad TEXT NOT NULL DEFAULT ''`
-      )
+      await db.execAsync(`ALTER TABLE patients ADD COLUMN edad TEXT NOT NULL DEFAULT ''`)
     }
   }
 
-  // v5 → v6: tabla meta para sync state (censoHash, etc.)
   if (currentVersion < 6) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS meta (

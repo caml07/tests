@@ -1,0 +1,142 @@
+[2026-07-01T20:51:29.706Z] [LOG] [ROOT] App started, fonts=false hydrated=true
+[2026-07-01T20:51:29.816Z] [LOG] [ROOT] App started, fonts=true hydrated=true
+[2026-07-01T20:51:30.928Z] [LOG] [DB-SYNC] Reconnected, flushing queue...
+[2026-07-01T20:51:30.933Z] [WARN] [DB-SYNC] No DB available for flushQueue
+[2026-07-01T20:52:06.248Z] [LOG] [DB-SYNC] User authenticated, initializing sync
+[2026-07-01T20:52:06.252Z] [LOG] [DB-SYNC] Getting DB for initial sync...
+[2026-07-01T20:52:06.256Z] [LOG] [DB] getDb: no instance, calling initDatabase...
+[2026-07-01T20:52:06.260Z] [LOG] [DB] initDatabase: opening "nutricion.db"...
+[2026-07-01T20:52:06.319Z] [LOG] [DB] getDb: no instance, calling initDatabase...
+[2026-07-01T20:52:06.322Z] [LOG] [DB] initDatabase: opening "nutricion.db"...
+[2026-07-01T20:52:06.327Z] [LOG] [DB] getDb: no instance, calling initDatabase...
+[2026-07-01T20:52:06.329Z] [LOG] [DB] initDatabase: opening "nutricion.db"...
+[2026-07-01T20:52:06.333Z] [LOG] [DB] getDb: no instance, calling initDatabase...
+[2026-07-01T20:52:06.336Z] [LOG] [DB] initDatabase: opening "nutricion.db"...
+[2026-07-01T20:52:06.458Z] [LOG] [DB] initDatabase: open OK, running migration...
+[2026-07-01T20:52:06.466Z] [LOG] [DB] initDatabase: open OK, running migration...
+[2026-07-01T20:52:06.467Z] [LOG] [DB] initDatabase: open OK, running migration...
+[2026-07-01T20:52:06.469Z] [LOG] [DB] initDatabase: open OK, running migration...
+[2026-07-01T20:52:06.476Z] [LOG] [DB] Migration: current_version=0, target=6
+[2026-07-01T20:52:06.478Z] [LOG] [DB] Migration: current_version=0, target=6
+[2026-07-01T20:52:06.479Z] [LOG] [DB] Migration: current_version=0, target=6
+[2026-07-01T20:52:06.553Z] [LOG] [DB] Migration: current_version=0, target=6
+[2026-07-01T20:52:06.621Z] [LOG] [DB] initDatabase: migration done
+[2026-07-01T20:52:06.622Z] [LOG] [DB] getDb: initDatabase done
+[2026-07-01T20:52:06.627Z] [LOG] [DB] initDatabase: migration done
+[2026-07-01T20:52:06.628Z] [LOG] [DB] getDb: initDatabase done
+[2026-07-01T20:52:06.628Z] [LOG] [DB-SYNC] DB obtained, starting syncAll...
+[2026-07-01T20:52:06.639Z] [LOG] [SYNC] syncAll START | {"strU":"eduardo.quant"}
+[2026-07-01T20:52:06.648Z] [LOG] [DB] initDatabase: migration done
+[2026-07-01T20:52:06.648Z] [LOG] [DB] getDb: initDatabase done
+[2026-07-01T20:52:06.653Z] [LOG] [DB] initDatabase: migration done
+[2026-07-01T20:52:06.654Z] [LOG] [DB] getDb: initDatabase done
+[2026-07-01T20:52:06.765Z] [LOG] [SYNC] API getCenso OK | {"responseKeys":["strMsg","strMsgType","intMsgError","listCenso","datResponse"]}
+[2026-07-01T20:52:06.778Z] [LOG] [SYNC] Raw patients from API: 54 | {"hash":"-2qk39o"}
+[2026-07-01T20:52:06.784Z] [LOG] [SYNC] Hash check: saved="null" new="-2qk39o" same=false
+[2026-07-01T20:52:06.785Z] [LOG] [SYNC] Hash mismatch, parsing censo...
+[2026-07-01T20:52:06.794Z] [LOG] [SYNC] Parsed: 3 agrupaciones, 15 stations, 54 patients
+[2026-07-01T20:52:06.795Z] [LOG] [SYNC]   Station QMT → 1 patients
+[2026-07-01T20:52:06.795Z] [LOG] [SYNC]   Station NEO → 3 patients
+[2026-07-01T20:52:06.796Z] [LOG] [SYNC]   Station PAE → 2 patients
+[2026-07-01T20:52:06.796Z] [LOG] [SYNC]   Station MQ2 → 4 patients
+[2026-07-01T20:52:06.796Z] [LOG] [SYNC]   Station IMA → 1 patients
+[2026-07-01T20:52:06.797Z] [LOG] [SYNC]   Station HD → 1 patients
+[2026-07-01T20:52:06.797Z] [LOG] [SYNC]   Station REC → 5 patients
+[2026-07-01T20:52:06.797Z] [LOG] [SYNC]   Station HEM → 1 patients
+[2026-07-01T20:52:06.798Z] [LOG] [SYNC]   Station MQ1 → 15 patients
+[2026-07-01T20:52:06.798Z] [LOG] [SYNC]   Station UCI → 4 patients
+[2026-07-01T20:52:06.798Z] [LOG] [SYNC]   Station PD  → 8 patients
+[2026-07-01T20:52:06.799Z] [LOG] [SYNC]   Station SO  → 2 patients
+[2026-07-01T20:52:06.799Z] [LOG] [SYNC]   Station PD → 1 patients
+[2026-07-01T20:52:06.800Z] [LOG] [SYNC]   Station MAT → 5 patients
+[2026-07-01T20:52:06.800Z] [LOG] [SYNC]   Station NEOI → 1 patients
+[2026-07-01T20:52:06.800Z] [LOG] [SYNC] BEGIN TRANSACTION
+[2026-07-01T20:52:06.802Z] [LOG] [SYNC] DELETE FROM agrupaciones...
+[2026-07-01T20:52:06.804Z] [LOG] [SYNC] DELETE FROM stations...
+[2026-07-01T20:52:06.806Z] [LOG] [SYNC] DELETE FROM patients...
+[2026-07-01T20:52:06.807Z] [LOG] [SYNC] All DELETEs done
+[2026-07-01T20:52:06.808Z] [LOG] [SYNC] INSERT 3 agrupaciones...
+[2026-07-01T20:52:06.814Z] [LOG] [SYNC] INSERT 15 stations...
+[2026-07-01T20:52:06.841Z] [LOG] [SYNC]   stations 10/15
+[2026-07-01T20:52:06.851Z] [LOG] [SYNC] INSERT 54 patients...
+[2026-07-01T20:52:06.878Z] [LOG] [SYNC]   patients 10/54
+[2026-07-01T20:52:06.903Z] [LOG] [SYNC]   patients 20/54
+[2026-07-01T20:52:06.926Z] [LOG] [SYNC]   patients 30/54
+[2026-07-01T20:52:06.949Z] [LOG] [SYNC]   patients 40/54
+[2026-07-01T20:52:06.976Z] [LOG] [SYNC]   patients 50/54
+[2026-07-01T20:52:06.988Z] [LOG] [SYNC] COMMIT
+[2026-07-01T20:52:06.994Z] [LOG] [SYNC] Saving hash to meta...
+[2026-07-01T20:52:07.006Z] [LOG] [SYNC] Invalidating query cache...
+[2026-07-01T20:52:07.027Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:07.031Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:07.032Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:07.033Z] [LOG] [SYNC] syncAll SUCCESS
+[2026-07-01T20:52:07.041Z] [LOG] [DB-SYNC] Initial sync result: true
+[2026-07-01T20:52:07.433Z] [LOG] [DUMP] DB dump saved: file:///data/user/0/com.hvp.dietas/files/db-dump.json (18323 bytes)
+[2026-07-01T20:52:22.628Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:22.630Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:23.936Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:23.939Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:24.158Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:31.246Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:32.445Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:32.447Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:35.609Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:37.181Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:37.184Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:38.393Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:38.395Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:40.689Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:40.691Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:41.531Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:41.532Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:42.808Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:42.809Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:43.392Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:43.393Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:44.242Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:44.242Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:44.748Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:44.749Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.084Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.085Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.330Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.331Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.765Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:45.766Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:46.366Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:46.366Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:48.521Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:49.566Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:51.066Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:51.067Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:52.166Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:52.168Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:52.747Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:52.748Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:53.849Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:53.851Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:54.830Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:54.832Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:55.931Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:55.933Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:56.439Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:56.440Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:57.530Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:52:57.532Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:00.366Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:00.368Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:01.417Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:01.418Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:02.217Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:02.218Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:03.310Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:03.312Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:08.926Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:08.929Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:09.961Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:09.982Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:11.340Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:11.341Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:12.365Z] [LOG] [DB] getDb: returning existing instance
+[2026-07-01T20:53:12.367Z] [LOG] [DB] getDb: returning existing instance

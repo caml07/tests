@@ -4,10 +4,10 @@ import { PressableScale } from '@/src/shared/atoms/PressableScale'
 import { useColorScheme } from '@/components/useColorScheme'
 import Colors from '@/constants/Colors'
 import { Typography, BorderRadius, space, shadow } from '@/src/shared/utils/tokens'
-import { Patient } from '@/src/shared/types'
+import { Patient, ParsedAlergia } from '@/src/shared/types'
 
 interface PatientCardProps {
-  patient: Patient & { dietaNombre: string; dietaSimbolo?: string; alergias: string[] }
+  patient: Patient & { dietaNombre: string; dietaSimbolo?: string; alergias: ParsedAlergia[] }
   onPress?: () => void
 }
 
@@ -16,7 +16,7 @@ const SEXO_ICON: Record<string, IconName> = {
   F: 'venus.fill',
 }
 
-function CardInner({ patient, colors }: { patient: Patient & { dietaNombre: string; dietaSimbolo?: string; alergias: string[] }; colors: typeof Colors.light | typeof Colors.dark }) {
+function CardInner({ patient, colors }: { patient: Patient & { dietaNombre: string; dietaSimbolo?: string; alergias: ParsedAlergia[] }; colors: typeof Colors.light | typeof Colors.dark }) {
   const showAlergias = (patient.alergias?.length ?? 0) > 0
   const showNotas = !!patient.notas
   const sexoIcon = SEXO_ICON[patient.sexo ?? ''] || null
@@ -62,12 +62,15 @@ function CardInner({ patient, colors }: { patient: Patient & { dietaNombre: stri
           </View>
         </View>
         {showAlergias && (
-          <View style={styles.tagsRow}>
-            <Icon name="exclamationmark.triangle.fill" tintColor={colors.warning} size={14} />
+          <View style={styles.alergiaBubble}>
+            <View style={styles.alergiaHeader}>
+              <Icon name="exclamationmark.triangle.fill" tintColor={colors.warning} size={14} />
+              <Text style={[styles.alergiaLabel, { color: colors.warning }]}>ALERGIAS</Text>
+            </View>
             {patient.alergias?.map((alergia, i) => (
-              <View key={i} style={[styles.tag, { backgroundColor: colors.warningLight }]}>
-                <Text style={[styles.tagText, { color: colors.warning }]}>{alergia}</Text>
-              </View>
+              <Text key={i} style={styles.alergiaText} numberOfLines={0}>
+                {alergia.lines.map((line, li) => (li > 0 ? '\n' : '') + line).join('')}
+              </Text>
             ))}
           </View>
         )}
@@ -161,20 +164,29 @@ const styles = StyleSheet.create({
   dieta: {
     ...Typography.footnote,
   },
-  tagsRow: {
+  alergiaBubble: {
+    backgroundColor: '#FFF4E5',
+    borderRadius: BorderRadius.md,
+    padding: space[3],
+    gap: space[1],
+    borderWidth: 1,
+    borderColor: '#FFB347',
+  },
+  alergiaHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[1],
-    flexWrap: 'wrap',
   },
-  tag: {
-    paddingHorizontal: space[2],
-    paddingVertical: 3,
-    borderRadius: BorderRadius.sm,
-  },
-  tagText: {
+  alergiaLabel: {
     ...Typography.caption2,
-    fontWeight: '500',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  alergiaText: {
+    ...Typography.footnote,
+    color: '#8B4500',
+    lineHeight: 20,
   },
   notasRow: {
     flexDirection: 'row',

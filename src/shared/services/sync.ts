@@ -1,9 +1,10 @@
 import type { SQLiteDatabase, SQLiteBindValue } from 'expo-sqlite'
 import type { QueryClient } from '@tanstack/react-query'
-import * as FileSystem from 'expo-file-system'
-const FS = FileSystem as unknown as { documentDirectory: string }
+import * as FileSystem from 'expo-file-system/legacy'
+const FS = FileSystem as unknown as { documentDirectory: string; readAsStringAsync: Function; writeAsStringAsync: Function; EncodingType: { UTF8: string } }
 import { api } from './api'
-import { getAllRows, deleteWhere, getMetaValue, setMetaValue } from './database'
+import { getAllRows, deleteWhere, getMetaValue, setMetaValue, invalidateDb } from './database'
+import { log, warn, error as logError, logErrorDump } from './appLogger'
 import type { Station, Patient, CartItem, Agrupacion, CensoPatient } from '@/src/shared/types'
 const MAX_RETRIES = 5
 
@@ -40,24 +41,58 @@ function stripHtml(s: string): string {
   return result.replace(/\s+/g, ' ').trim()
 }
 
-function parseAlergias(raw: string, bitAlergia?: boolean): string[] {
+interface ParsedAlergia {
+  drug: string
+  reaction: string
+  raw: string
+  lines: string[]
+}
+
+function parseAlergias(raw: string, bitAlergia?: boolean): ParsedAlergia[] {
   if (bitAlergia === false) return []
-  const cleaned = stripHtml(raw)
-  if (!cleaned || cleaned.toLowerCase().includes('no refiere') || cleaned.toLowerCase().includes('no refieren')) return []
-  if (cleaned.startsWith('[')) { try { return JSON.parse(cleaned) as string[] } catch {} }
-  return cleaned.split(/[,;]+/).map(s => s.trim()).filter(Boolean)
+  const cleaned = stripHtml(raw).trim()
+  if (!cleaned || /no refiere?/i.test(cleaned)) return []
+
+  const result: ParsedAlergia[] = []
+
+  // Formato estructurado: ". -Drug: Reaction. Agrega: Author - Date" (puede repetirse)
+  const structuredRegex = /\.?\s*-\s*([^:]+):\s*([^.]+)\.\s*Agrega:\s*([^-]+)\s*-\s*([^.]+)/gi
+  let match: RegExpExecArray | null
+  let structuredCount = 0
+  while ((match = structuredRegex.exec(cleaned)) !== null) {
+    const drug = match[1].trim()
+    const reaction = match[2].trim()
+    const rawEntry = match[0].trim()
+    const lines = rawEntry.split(/\.\s*/).filter(Boolean)
+    result.push({ drug, reaction, raw: rawEntry, lines })
+    structuredCount++
+  }
+  if (structuredCount > 0) return result
+
+  // Formato parens: "Drug (Reaction)"
+  const parensMatch = cleaned.match(/^(.+?)\s*\(([^)]+)\)$/)
+  if (parensMatch) {
+    const drug = parensMatch[1].trim()
+    const reaction = parensMatch[2].trim()
+    return [{ drug, reaction, raw: cleaned, lines: [cleaned] }]
+  }
+
+  // Simple: texto plano (puede tener comas, no hacemos split para no romper "Celebra, Rash")
+  return [{ drug: cleaned, reaction: '', raw: cleaned, lines: [cleaned] }]
 }
 
 export async function dumpDb(db: SQLiteDatabase): Promise<string> {
-  const [agrupaciones, stations, patients] = await Promise.all([
-    db.getAllAsync('SELECT * FROM agrupaciones'),
-    db.getAllAsync('SELECT * FROM stations'),
-    db.getAllAsync('SELECT * FROM patients'),
-  ])
+  log('DUMP', 'Starting DB dump (serialized)')
+  const agrupaciones = await db.getAllAsync('SELECT * FROM agrupaciones')
+  log('DUMP', `agrupaciones: ${agrupaciones.length} rows`)
+  const stations = await db.getAllAsync('SELECT * FROM stations')
+  log('DUMP', `stations: ${stations.length} rows`)
+  const patients = await db.getAllAsync('SELECT * FROM patients')
+  log('DUMP', `patients: ${patients.length} rows`)
   const json = JSON.stringify({ agrupaciones, stations, patients }, null, 2)
   const path = FS.documentDirectory + 'db-dump.json'
-  await FileSystem.writeAsStringAsync(path, json, { encoding: 'utf8' as any })
-  if (__DEV__) console.log('[DUMP] Saved:', path, `(${json.length} bytes)`)
+  await FS.writeAsStringAsync(path, json, { encoding: FS.EncodingType.UTF8 })
+  log('DUMP', `DB dump saved: ${path} (${json.length} bytes)`)
   return path
 }
 
@@ -141,6 +176,7 @@ function bind(v: unknown): SQLiteBindValue {
 }
 
 const HASH_KEY = 'censoHash'
+let _syncRunning = false
 
 function val(v: unknown): string {
   return v == null ? '' : String(v)
@@ -161,6 +197,12 @@ function invalidateCache(queryClient: QueryClient) {
 }
 
 export async function syncAll(db: SQLiteDatabase, queryClient?: QueryClient, strU?: string): Promise<boolean> {
+  if (_syncRunning) {
+    log('SYNC', 'syncAll skipped: already running')
+    return false
+  }
+  _syncRunning = true
+
   let newHash = ''
   let censoCount = 0
   let agrupaciones: Agrupacion[] = []
@@ -168,81 +210,88 @@ export async function syncAll(db: SQLiteDatabase, queryClient?: QueryClient, str
   let patients: Patient[] = []
 
   try {
+    log('SYNC', 'syncAll START', { strU })
+
     const [censoRes] = await Promise.all([
       api.getCenso(strU),
     ])
+    log('SYNC', 'API getCenso OK', { responseKeys: Object.keys(censoRes[0] || {}) })
 
     const list = censoRes[0].listCenso ?? []
     censoCount = list.length
     newHash = hashJSON(list)
-    if (await getMetaValue(db, HASH_KEY) === newHash) {
+    log('SYNC', `Raw patients from API: ${list.length}`, { hash: newHash })
+
+    const savedHash = await getMetaValue(db, HASH_KEY)
+    log('SYNC', `Hash check: saved="${savedHash}" new="${newHash}" same=${savedHash === newHash}`)
+
+    if (savedHash === newHash) {
+      log('SYNC', 'Hash match, skipping sync')
       if (queryClient) invalidateCache(queryClient)
+      _syncRunning = false
       return true
     }
 
+    log('SYNC', 'Hash mismatch, parsing censo...')
     const parsed = parseCenso(list)
     agrupaciones = parsed.agrupaciones
     stations = parsed.stations
     patients = parsed.patients
+    log('SYNC', `Parsed: ${agrupaciones.length} agrupaciones, ${stations.length} stations, ${patients.length} patients`)
 
-    if (__DEV__) {
-      console.log('[SYNC] ─── CENSO DUMP ───')
-      console.log('[SYNC] Raw patients from API:', list.length)
-      console.log('[SYNC] Parsed agrupaciones:', agrupaciones.length)
-      console.log('[SYNC] Parsed stations:', stations.length)
-      console.log('[SYNC] Parsed patients:', patients.length)
-      const byStation = new Map<string, number>()
-      for (const p of patients) byStation.set(p.stationId, (byStation.get(p.stationId) ?? 0) + 1)
-      for (const s of stations) console.log('[SYNC]   Station', s.nombre, '→', byStation.get(s.id) ?? 0, 'patients')
-      console.log('[SYNC] ────────────────')
+    const byStation = new Map<string, number>()
+    for (const p of patients) byStation.set(p.stationId, (byStation.get(p.stationId) ?? 0) + 1)
+    for (const s of stations) log('SYNC', `  Station ${s.nombre} → ${byStation.get(s.id) ?? 0} patients`)
+
+    log('SYNC', 'DELETE FROM agrupaciones...')
+    await db.execAsync('DELETE FROM agrupaciones')
+    log('SYNC', 'DELETE FROM stations...')
+    await db.execAsync('DELETE FROM stations')
+    log('SYNC', 'DELETE FROM patients...')
+    await db.execAsync('DELETE FROM patients')
+    log('SYNC', 'All DELETEs done')
+
+    log('SYNC', `INSERT ${agrupaciones.length} agrupaciones...`)
+    for (let i = 0; i < agrupaciones.length; i++) {
+      const r = agrupaciones[i]
+      await db.runAsync('INSERT OR REPLACE INTO agrupaciones (id, nombre, icon) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.icon)])
+      if (i > 0 && i % 10 === 0) log('SYNC', `SYNC`, `  agrupaciones ${i}/${agrupaciones.length}`)
+    }
+    log('SYNC', `INSERT ${stations.length} stations...`)
+    for (let i = 0; i < stations.length; i++) {
+      const r = stations[i]
+      await db.runAsync('INSERT OR REPLACE INTO stations (id, nombre, agrupacionId) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.agrupacionId)])
+      if (i > 0 && i % 10 === 0) log('SYNC', `  stations ${i}/${stations.length}`)
+    }
+    log('SYNC', `INSERT ${patients.length} patients...`)
+    for (let i = 0; i < patients.length; i++) {
+      const r = patients[i]
+      const alergias = Array.isArray(r.alergias) ? JSON.stringify(r.alergias) : val(r.alergias)
+      await db.runAsync(
+        'INSERT OR REPLACE INTO patients (id, nombre, stationId, habitacion, cama, dietaId, alergias, notas, sexo, edad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [val(r.id), val(r.nombre), val(r.stationId), val(r.habitacion), val(r.cama), val(r.dietaId), alergias, val(r.notas), val(r.sexo), val(r.edad)],
+      )
+      if (i > 0 && i % 10 === 0) log('SYNC', `  patients ${i}/${patients.length}`)
     }
 
-    await db.execAsync('BEGIN TRANSACTION')
-    try {
-      await db.execAsync('DELETE FROM agrupaciones')
-      await db.execAsync('DELETE FROM stations')
-      await db.execAsync('DELETE FROM patients')
-
-      for (const r of agrupaciones) {
-        await db.runAsync('INSERT OR REPLACE INTO agrupaciones (id, nombre, icon) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.icon)])
-      }
-      for (const r of stations) {
-        await db.runAsync('INSERT OR REPLACE INTO stations (id, nombre, agrupacionId) VALUES (?, ?, ?)', [val(r.id), val(r.nombre), val(r.agrupacionId)])
-      }
-      for (const r of patients) {
-        const alergias = Array.isArray(r.alergias) ? JSON.stringify(r.alergias) : val(r.alergias)
-        await db.runAsync(
-          'INSERT OR REPLACE INTO patients (id, nombre, stationId, habitacion, cama, dietaId, alergias, notas, sexo, edad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [val(r.id), val(r.nombre), val(r.stationId), val(r.habitacion), val(r.cama), val(r.dietaId), alergias, val(r.notas), val(r.sexo), val(r.edad)],
-        )
-      }
-
-      await db.execAsync('COMMIT')
-    } catch (e) {
-      try { await db.execAsync('ROLLBACK') } catch {}
-      throw e
-    }
-
+    log('SYNC', 'Saving hash to meta...')
     await setMetaValue(db, HASH_KEY, newHash)
+    log('SYNC', 'Invalidating query cache...')
     if (queryClient) invalidateCache(queryClient)
-    if (__DEV__) dumpDb(db).catch(() => {})
+    log('SYNC', 'syncAll SUCCESS')
+    dumpDb(db).catch(() => {})
+    _syncRunning = false
     return true
   } catch (e) {
-    if (__DEV__) {
-      console.warn('[SYNC] syncAll failed:', e)
-      const path = FS.documentDirectory + 'sync-error.txt'
-      const lines = [
-        `[SYNC-ERROR] ${new Date().toISOString()}`,
-        `Error: ${(e as Error)?.message ?? String(e)}`,
-        `Stack: ${(e as Error)?.stack ?? ''}`,
-        `Hash: ${newHash || '?'}`,
-        `Censo raw: ${censoCount}`,
-        `Agrupaciones: ${agrupaciones.length}`,
-        `Stations: ${stations.length}`,
-        `Patients: ${patients.length}`,
-      ]
-      await FileSystem.writeAsStringAsync(path, lines.join('\n'), { encoding: FileSystem.EncodingType.UTF8 }).catch(() => {})
-    }
+    logError('SYNC', 'syncAll FAILED', { error: (e as Error)?.message, hash: newHash, censo: censoCount, agrupaciones: agrupaciones.length, stations: stations.length, patients: patients.length })
+    logError('SYNC', `Stack: ${(e as Error)?.stack ?? '(no stack)'}`)
+    logErrorDump(db, e, { hash: newHash, censoCount, agrupaciones: agrupaciones.length, stations: stations.length, patients: patients.length })
+    const path = FS.documentDirectory + 'sync-error.txt'
+    try {
+      await FS.writeAsStringAsync(path, `[SYNC-ERROR] ${new Date().toISOString()}\nError: ${(e as Error)?.message ?? String(e)}\nStack: ${(e as Error)?.stack ?? ''}`, { encoding: FS.EncodingType.UTF8 })
+    } catch {}
+    invalidateDb()
+    _syncRunning = false
     return false
   }
 }

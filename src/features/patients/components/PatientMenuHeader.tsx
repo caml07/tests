@@ -4,6 +4,7 @@ import { Skeleton } from '@/src/shared/atoms'
 import { useColorScheme } from '@/components/useColorScheme'
 import Colors from '@/constants/Colors'
 import { Typography, BorderRadius, space, Spacing } from '@/src/shared/utils/tokens'
+import { ParsedAlergia } from '@/src/shared/types'
 
 const SEXO_ICON: Record<string, IconName> = {
   M: 'mars.fill',
@@ -18,6 +19,7 @@ interface PatientMenuHeaderProps {
   dietaSimbolo: IconName
   sexo?: string
   edad?: string
+  alergias?: ParsedAlergia[]
   showBack?: boolean
   onBackPress?: () => void
   cartCount?: number
@@ -25,10 +27,11 @@ interface PatientMenuHeaderProps {
   onHistoryPress?: () => void
 }
 
-export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dietaSimbolo, sexo, edad, showBack, onBackPress, cartCount, onCartPress, onHistoryPress }: PatientMenuHeaderProps) {
+export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dietaSimbolo, sexo, edad, alergias, showBack, onBackPress, cartCount, onCartPress, onHistoryPress }: PatientMenuHeaderProps) {
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme]
   const sexoIcon = sexo ? SEXO_ICON[sexo] ?? 'person.fill' : 'person.fill'
+  const showAlergias = (alergias?.length ?? 0) > 0
 
   return (
     <View style={[styles.header, { backgroundColor: colors.surfaceAlt }]}>
@@ -62,6 +65,19 @@ export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dieta
             {dietaNombre}
           </Text>
         </View>
+        {showAlergias && (
+          <View style={[styles.alergiaBubble, { borderColor: colors.warning }]}>
+            <View style={styles.alergiaHeader}>
+              <Icon name="exclamationmark.triangle.fill" tintColor={colors.warning} size={14} />
+              <Text style={[styles.alergiaLabel, { color: colors.warning }]}>ALERGIAS</Text>
+            </View>
+            {alergias?.map((alergia, i) => (
+              <Text key={i} style={styles.alergiaText} numberOfLines={0}>
+                {alergia.lines.map((line, li) => (li > 0 ? '\n' : '') + line).join('')}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
 
       <View style={styles.actions}>
@@ -139,6 +155,29 @@ const styles = StyleSheet.create({
   },
   dietaText: {
     ...Typography.footnote,
+  },
+  alergiaBubble: {
+    backgroundColor: '#FFF4E5',
+    borderRadius: BorderRadius.md,
+    padding: space[3],
+    gap: space[1],
+    borderWidth: 1,
+  },
+  alergiaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[1],
+  },
+  alergiaLabel: {
+    ...Typography.caption2,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  alergiaText: {
+    ...Typography.footnote,
+    color: '#8B4500',
+    lineHeight: 20,
   },
   actions: {
     flexDirection: 'row',

@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Patient, Dieta } from '@/src/shared/types'
+import { Patient, Dieta, ParsedAlergia } from '@/src/shared/types'
 import { api } from '@/src/shared/services/api'
 
 interface PatientWithDieta extends Patient {
   dietaNombre: string
   dietaSimbolo: string
-  alergias: string[]
+  alergias: ParsedAlergia[]
 }
 
 export function usePatients(stationId: string, searchQuery: string) {
@@ -35,12 +35,9 @@ export function usePatients(stationId: string, searchQuery: string) {
     }
     return list.map(p => {
       const info = dietaMap[p.dietaId]
-      const alergias = Array.isArray(p.alergias) ? p.alergias
-        : typeof p.alergias === 'string' ? [p.alergias]
-        : []
       return {
         ...p,
-        alergias,
+        alergias: (p.alergias ?? []) as ParsedAlergia[],
         dietaNombre: info?.nombre || 'Sin especificar',
         dietaSimbolo: info?.simbolo || 'questionmark.circle',
       }

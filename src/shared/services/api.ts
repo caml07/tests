@@ -1,7 +1,7 @@
 import type { AuthResponse, Station, Patient, Comida, CartItem, Dieta, Order, Agrupacion, InterfaceResponse, CensoPatient } from '@/src/shared/types'
 import { API_BASE, STATIC_TOKEN, INTERFACE_URL, INTERFACE_SYSTEM } from '@/src/shared/utils/config'
 import { mmkv } from './mmkvStorage'
-import { getDb, tryDeserialize, serializeArray } from './database'
+import { withDb, tryDeserialize, serializeArray } from './database'
 import NetInfo from '@react-native-community/netinfo'
 
 const REQUEST_TIMEOUT = 5000
@@ -86,58 +86,38 @@ export const api = {
   getCenso: (strU?: string): Promise<[InterfaceResponse<CensoPatient[]>]> =>
     interfaceRequest<[InterfaceResponse<CensoPatient[]>]>('censo', { strU: strU ?? getUser() ?? '', strTokenTransaccion: getToken() ?? '' }),
 
-  getAgrupaciones: async (): Promise<Agrupacion[]> => {
-    const db = await getDb()
-    return (await db.getAllAsync<Record<string, unknown>>('SELECT * FROM agrupaciones')).map(r => tryDeserialize(r) as unknown as Agrupacion)
-  },
+  getAgrupaciones: async (): Promise<Agrupacion[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM agrupaciones')).then(rows => rows.map(r => tryDeserialize(r) as unknown as Agrupacion))),
 
-  getEstaciones: async (): Promise<Station[]> => {
-    const db = await getDb()
-    return (await db.getAllAsync<Record<string, unknown>>('SELECT * FROM stations')).map(r => tryDeserialize(r) as unknown as Station)
-  },
+  getEstaciones: async (): Promise<Station[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM stations')).then(rows => rows.map(r => tryDeserialize(r) as unknown as Station))),
 
-  getAllPatients: async (): Promise<Patient[]> => {
-    const db = await getDb()
-    return (await db.getAllAsync<Record<string, unknown>>('SELECT * FROM patients')).map(r => tryDeserialize(r) as unknown as Patient)
-  },
+  getAllPatients: async (): Promise<Patient[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM patients')).then(rows => rows.map(r => tryDeserialize(r) as unknown as Patient))),
 
-  getDietas: async (): Promise<Dieta[]> => {
-    const db = await getDb()
-    return (await db.getAllAsync<Record<string, unknown>>('SELECT * FROM dietas')).map(r => tryDeserialize(r) as unknown as Dieta)
-  },
+  getDietas: async (): Promise<Dieta[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM dietas')).then(rows => rows.map(r => tryDeserialize(r) as unknown as Dieta))),
 
-  getComidas: async (): Promise<Comida[]> => {
-    const db = await getDb()
-    return (await db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas')).map(r => tryDeserialize(r) as unknown as Comida)
-  },
+  getComidas: async (): Promise<Comida[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas')).then(rows => rows.map(r => tryDeserialize(r) as unknown as Comida))),
 
-  getPacientes: async (estacionId: string): Promise<Patient[]> => {
-    const db = await getDb()
-    const rows = await db.getAllAsync<Record<string, unknown>>('SELECT * FROM patients WHERE stationId = ?', estacionId)
-    return rows.map(r => tryDeserialize(r) as unknown as Patient)
-  },
+  getPacientes: async (estacionId: string): Promise<Patient[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM patients WHERE stationId = ?', estacionId)).then(rows => rows.map(r => tryDeserialize(r) as unknown as Patient))),
 
-  getMenu: async (dietaId: string, tiempo: string): Promise<Comida[]> => {
-    const db = await getDb()
-    const rows = await db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas WHERE dietaId = ? AND tiempo = ?', dietaId, tiempo)
-    return rows.map(r => tryDeserialize(r) as unknown as Comida)
-  },
+  getMenu: async (dietaId: string, tiempo: string): Promise<Comida[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas WHERE dietaId = ? AND tiempo = ?', dietaId, tiempo)).then(rows => rows.map(r => tryDeserialize(r) as unknown as Comida))),
 
-  getMenuByDieta: async (dietaId: string): Promise<Comida[]> => {
-    const db = await getDb()
-    const rows = await db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas WHERE dietaId = ?', dietaId)
-    return rows.map(r => tryDeserialize(r) as unknown as Comida)
-  },
+  getMenuByDieta: async (dietaId: string): Promise<Comida[]> =>
+    withDb(db => (db.getAllAsync<Record<string, unknown>>('SELECT * FROM comidas WHERE dietaId = ?', dietaId)).then(rows => rows.map(r => tryDeserialize(r) as unknown as Comida))),
 
-  getPatient: async (id: string): Promise<Patient | null> => {
-    const db = await getDb()
-    const row = await db.getFirstAsync<Record<string, unknown>>('SELECT * FROM patients WHERE id = ?', id)
-    return row ? tryDeserialize(row) as unknown as Patient : null
-  },
+  getPatient: async (id: string): Promise<Patient | null> =>
+    withDb(db => (db.getFirstAsync<Record<string, unknown>>('SELECT * FROM patients WHERE id = ?', id)).then(row => row ? tryDeserialize(row) as unknown as Patient : null)),
 
   getPedidos: async (): Promise<Order[]> => {
     try { return await request<Order[]>('/pedidos') }
-    catch { const db = await getDb(); return (await db.getAllAsync<Record<string, unknown>>("SELECT * FROM pedidos_queue WHERE status IN ('PENDING', 'local_pending')")).map(r => tryDeserialize(r) as unknown as Order) }
+    catch {
+      return withDb(db => (db.getAllAsync<Record<string, unknown>>("SELECT * FROM pedidos_queue WHERE status IN ('PENDING', 'local_pending')")).then(rows => rows.map(r => tryDeserialize(r) as unknown as Order)))
+    }
   },
 
   postPedido: async (items: CartItem[], idempotencyKey?: string, skipQueueFallback?: boolean): Promise<Order> => {
@@ -162,23 +142,24 @@ export const api = {
       throw new Error('No hay conexión de red')
     }
 
-    const db = await getDb()
-    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 12)
-    await db.runAsync(
-      `INSERT INTO pedidos_queue (id, items, pacienteId, pacienteNombre, timestamp, status, idempotency_key) VALUES (?, ?, ?, ?, ?, 'PENDING', ?)`,
-      id,
-      serializeArray(items),
-      items[0]?.pacienteId ?? '',
-      items[0]?.pacienteNombre ?? '',
-      new Date().toISOString(),
-      idempotencyKey ?? id,
-    )
-    return {
-      id,
-      items,
-      pacienteId: items[0]?.pacienteId ?? '',
-      timestamp: new Date().toISOString(),
-      status: 'local_pending',
-    }
+    return withDb(async db => {
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 12)
+      await db.runAsync(
+        `INSERT INTO pedidos_queue (id, items, pacienteId, pacienteNombre, timestamp, status, idempotency_key) VALUES (?, ?, ?, ?, ?, 'PENDING', ?)`,
+        id,
+        serializeArray(items),
+        items[0]?.pacienteId ?? '',
+        items[0]?.pacienteNombre ?? '',
+        new Date().toISOString(),
+        idempotencyKey ?? id,
+      )
+      return {
+        id,
+        items,
+        pacienteId: items[0]?.pacienteId ?? '',
+        timestamp: new Date().toISOString(),
+        status: 'local_pending',
+      }
+    })
   },
 }

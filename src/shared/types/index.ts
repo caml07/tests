@@ -33,11 +33,18 @@ export interface Patient {
   habitacion: string
   cama: string
   dietaId: string
-  alergias: string[] | string
+  alergias: ParsedAlergia[]
   notas: string
   decPaciente?: number
   sexo?: string
   edad?: string
+}
+
+export interface ParsedAlergia {
+  drug: string
+  reaction: string
+  raw: string
+  lines: string[]
 }
 
 export interface Dieta {
@@ -100,7 +107,7 @@ export interface CensoPatient {
   decId?: number
   intCompany?: number
   intFacility?: number
-  strEstacion?: string
+  strEstacion: string
   decPaciente: number
   decCuenta: number
   strPaciente: string
