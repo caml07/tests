@@ -72,7 +72,7 @@ export function PatientMenuHeader({ nombre, habitacion, cama, dietaNombre, dieta
               <Text style={[styles.alergiaLabel, { color: colors.warning }]}>ALERGIAS</Text>
             </View>
             {alergias?.map((alergia, i) => (
-              <Text key={i} style={styles.alergiaText} numberOfLines={0}>
+              <Text key={i} style={[styles.alergiaText, { color: colors.text }]} numberOfLines={0}>
                 {alergia.lines.map((line, li) => (li > 0 ? '\n' : '') + line).join('')}
               </Text>
             ))}
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     ...Typography.footnote,
   },
   alergiaBubble: {
-    backgroundColor: '#FFF4E5',
     borderRadius: BorderRadius.md,
     padding: space[3],
     gap: space[1],
@@ -176,7 +175,6 @@ const styles = StyleSheet.create({
   },
   alergiaText: {
     ...Typography.footnote,
-    color: '#8B4500',
     lineHeight: 20,
   },
   actions: {

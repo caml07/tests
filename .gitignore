@@ -53,6 +53,9 @@ CLAUDE.md
 # script
 setup.sh
 
+# build/run scripts
+scripts/
+
 # tests
 *.test.ts
 *.test.tsx
@@ -63,6 +66,7 @@ vitest.config.ts
 
 # logs
 /logs/
+logs.txt
 
 # postman
 *.postman_collection.json

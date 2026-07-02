@@ -54,7 +54,8 @@ export default function PatientMenuScreen() {
       const dietTiempos = diet?.tiempos || []
 
       const alergias = Array.isArray(p.alergias) ? p.alergias
-        : typeof p.alergias === 'string' ? [p.alergias]
+        : typeof p.alergias === 'string'
+          ? (() => { try { const parsed = JSON.parse(p.alergias); return Array.isArray(parsed) ? parsed : [] } catch { return [] } })()
         : []
       setPatient({ ...p, alergias, dietaNombre, dietaSimbolo })
       setTiempos(Array.isArray(dietTiempos) ? dietTiempos : [])
@@ -94,6 +95,7 @@ export default function PatientMenuScreen() {
           dietaSimbolo={patient.dietaSimbolo as IconName}
           sexo={patient.sexo}
           edad={patient.edad}
+          alergias={patient.alergias}
           showBack={true}
           onBackPress={() => (router.canGoBack() ? router.back() : router.replace('/(app)/(tabs)'))}
           cartCount={cartCount}

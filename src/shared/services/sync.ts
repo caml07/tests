@@ -5,7 +5,7 @@ const FS = FileSystem as unknown as { documentDirectory: string; readAsStringAsy
 import { api } from './api'
 import { getAllRows, deleteWhere, getMetaValue, setMetaValue, invalidateDb } from './database'
 import { log, warn, error as logError, logErrorDump } from './appLogger'
-import type { Station, Patient, CartItem, Agrupacion, CensoPatient } from '@/src/shared/types'
+import type { Station, Patient, CartItem, Agrupacion, CensoPatient, ParsedAlergia } from '@/src/shared/types'
 const MAX_RETRIES = 5
 
 const AGRUPACION_ICONS: Record<number, string> = {
@@ -41,13 +41,6 @@ function stripHtml(s: string): string {
   return result.replace(/\s+/g, ' ').trim()
 }
 
-interface ParsedAlergia {
-  drug: string
-  reaction: string
-  raw: string
-  lines: string[]
-}
-
 function parseAlergias(raw: string, bitAlergia?: boolean): ParsedAlergia[] {
   if (bitAlergia === false) return []
   const cleaned = stripHtml(raw).trim()
@@ -62,8 +55,13 @@ function parseAlergias(raw: string, bitAlergia?: boolean): ParsedAlergia[] {
   while ((match = structuredRegex.exec(cleaned)) !== null) {
     const drug = match[1].trim()
     const reaction = match[2].trim()
+    const author = match[3].trim()
+    const date = match[4].trim()
     const rawEntry = match[0].trim()
-    const lines = rawEntry.split(/\.\s*/).filter(Boolean)
+    const lines = [
+      `${drug}: ${reaction}`,
+      `Agrega: ${author} - ${date}`,
+    ]
     result.push({ drug, reaction, raw: rawEntry, lines })
     structuredCount++
   }

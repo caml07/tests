@@ -155,21 +155,6 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     }
   }
 
-  if (currentVersion < 3) {
-    await db.execAsync(`
-      CREATE TABLE IF NOT EXISTS agrupaciones (
-        id TEXT PRIMARY KEY NOT NULL,
-        nombre TEXT NOT NULL,
-        icon TEXT NOT NULL DEFAULT ''
-      );
-    `)
-    const stationCols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(stations)`)
-    const stationExisting = new Set(stationCols.map(c => c.name))
-    if (!stationExisting.has('agrupacionId')) {
-      await db.execAsync(`ALTER TABLE stations ADD COLUMN agrupacionId TEXT NOT NULL DEFAULT ''`)
-    }
-  }
-
   if (currentVersion < 4) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS agrupaciones (
